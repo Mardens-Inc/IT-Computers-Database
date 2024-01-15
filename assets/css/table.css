@@ -1,6 +1,14 @@
-table {
+.table-content {
+    max-height: calc(100dvh - 250px);
+    min-height: 300px;
+    overflow-y: auto;
     width: 90%;
     margin: auto;
+    margin-top: 1rem;
+}
+
+table {
+    width: calc(100% - 1rem);
     border-spacing: 2px;
 }
 
@@ -16,6 +24,7 @@ table td {
 
 table tbody tr td:first-child {
     color: #bd5974;
+    font-weight: 700;
 }
 
 table tbody tr:nth-child(even) {
