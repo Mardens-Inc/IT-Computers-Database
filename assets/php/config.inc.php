@@ -3,16 +3,16 @@
 $DB_HOST = "127.0.0.1";
 $DB_USER = "drew";
 $DB_PASSWORD = "9bc9f6b264724051";
-$DB_NAME = "it-computers";
+$DB_NAME = "itcomputers";
 
 if (!isset($_ENV["HASH_SALT"]) || $_ENV["HASH_SALT"] == "") {
     // Hash salt
-    if (!file_exists("hash")) {
+    if (!file_exists($_SERVER["DOCUMENT_ROOT"] . "/hash")) {
         createGuid();
     } else {
-        $guid = file_get_contents("hash");
+        $guid = file_get_contents($_SERVER["DOCUMENT_ROOT"] . "/hash");
         if ($guid == "") {
-            unlink("hash");
+            unlink($_SERVER["DOCUMENT_ROOT"] . "/hash");
             createGuid();
         } else {
             $_ENV["HASH_SALT"] = $guid;
@@ -23,7 +23,7 @@ if (!isset($_ENV["HASH_SALT"]) || $_ENV["HASH_SALT"] == "") {
 function createGuid()
 {
     $guid = getGUID();
-    file_put_contents("hash", $guid);
+    file_put_contents($_SERVER["DOCUMENT_ROOT"] . "/hash", $guid);
     $_ENV["HASH_SALT"] = $guid;
 }
 
