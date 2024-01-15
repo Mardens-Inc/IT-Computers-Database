@@ -40,14 +40,15 @@ class Computer
     public string $model;
     public Condition $condition;
     public DeviceType $device_type;
+    public OperatingSystem $operating_system;
     public string $primary_user;
     public string $location;
-    public array $additional_information;
+    public mixed $additional_information;
     public string $notes;
     public DateTime $created_date;
     public DateTime $modified_date;
 
-    function __construct(int $asset_number, string $make, string $model, Condition $condition, DeviceType $device_type, string $primary_user, string $location, array $additional_information, string $notes)
+    function __construct(int $asset_number, string $make, string $model, Condition $condition, DeviceType $device_type, OperatingSystem $operatingSystem, string $primary_user, string $location, mixed $additional_information, string $notes)
     {
         $this->id = 0;
         $this->asset_number = $asset_number;
@@ -55,6 +56,7 @@ class Computer
         $this->model = $model;
         $this->condition = $condition;
         $this->device_type = $device_type;
+        $this->operating_system = $operatingSystem;
         $this->primary_user = $primary_user;
         $this->location = $location;
         $this->additional_information = $additional_information;
@@ -67,33 +69,77 @@ class Computer
      * This function returns a JSON representation of the Computer object.
      * @return string The JSON representation of the Computer object, or an boolean false if the JSON encoding failed.
      */
-    public static function fromJSON(string $json): Computer|bool
+    public static function fromJSON(string|array $json): Computer|bool
     {
-        $data = json_decode($json, true);
+        if (is_string($json))
+            $data = json_decode($json, true);
+        else if (is_array($json))
+            $data = $json;
+        else return false;
         if ($data) {
             try {
+                $condition = match ($data["condition"]) {
+                    0 => Condition::New,
+                    1 => Condition::Good,
+                    2 => Condition::Used,
+                    3 => Condition::Refurbished,
+                    4 => Condition::Broken,
+                    default => false
+                };
+
+                $deviceType = match ($data["device_type"]) {
+                    0 => DeviceType::Desktop,
+                    1 => DeviceType::Laptop,
+                    2 => DeviceType::Tablet,
+                    3 => DeviceType::Phone,
+                    4 => DeviceType::Server,
+                    5 => DeviceType::Printer,
+                    6 => DeviceType::Other,
+                    default => false
+                };
+
+                $operatingSystem = match ($data["operating_system"]) {
+                    0 => OperatingSystem::Windows,
+                    1 => OperatingSystem::MacOS,
+                    2 => OperatingSystem::Linux,
+                    3 => OperatingSystem::ChromeOS,
+                    4 => OperatingSystem::Android,
+                    5 => OperatingSystem::iOS,
+                    6 => OperatingSystem::Umix,
+                    7 => OperatingSystem::Other,
+                    default => false
+                };
+
+                if (!$condition || !$deviceType || !$operatingSystem) return false;
+
+                $additional_information = is_string($data["additional_information"]) ? json_decode($data["additional_information"]) : $data["additional_information"];
 
                 $computer = new Computer(
                     $data["asset_number"],
                     $data["make"],
                     $data["model"],
-                    $data["condition"],
-                    $data["device_type"],
+                    $condition,
+                    $deviceType,
+                    $operatingSystem,
                     $data["primary_user"],
                     $data["location"],
-                    $data["additional_information"],
+                    $additional_information,
                     $data["notes"]
                 );
-                $computer->id = $data["id"];
-                $computer->created_date = new DateTime($data["created_date"]);
-                $computer->modified_date = new DateTime($data["modified_date"]);
+                if (isset($data["id"]))
+                    $computer->id = $data["id"];
+                if (isset($data["created_date"]))
+                    $computer->created_date = new DateTime($data["created_date"]);
+                if (isset($data["modified_date"]))
+                    $computer->modified_date = new DateTime($data["modified_date"]);
+
                 return $computer;
             } catch (Exception) {
+
                 return false;
             }
-        } else {
-            return false;
         }
+        return false;
     }
 }
 
@@ -106,6 +152,7 @@ class ITComputers
      */
     function __construct()
     {
+        date_default_timezone_set('America/New_York');
         require_once $_SERVER['DOCUMENT_ROOT'] . "/assets/php/connections.inc.php";
         $this->db = DB_Connect::connect();
 
@@ -136,7 +183,7 @@ class ITComputers
      * @return Computer The computer object.
      * @throws Exception If no computer is found with the provided id, or if more than one computer is found with the same id.
      */
-    function getComputer(int $id): Computer
+    function getComputer(int $id): Computer|bool
     {
         // Prepare a SQL statement to select a computer from the `computers` table by its `id`.
         $stmt = $this->db->prepare("SELECT * FROM `computers` WHERE `id` = ?");
@@ -163,26 +210,14 @@ class ITComputers
         // Fetch the first (and only) row of the result set.
         $row = $result->fetch_assoc();
 
-        // Create a new Computer object using the data from the row.
-        $computer = new Computer(
-            $row["asset_number"],
-            $row["make"],
-            $row["model"],
-            $row["condition"],
-            $row["device_type"],
-            $row["primary_user"],
-            $row["location"],
-            $row["additional_information"],
-            $row["notes"],
-        );
 
-        // Set the `id`, `created_date`, and `modified_date` properties of the Computer object.
-        $computer->id = $row["id"];
-        $computer->created_date = $row["created_date"];
-        $computer->modified_date = $row["modified_date"];
+        $computer = Computer::fromJSON($row);
 
-        // Return the Computer object.
-        return $computer;
+        if ($computer instanceof Computer) {
+            // Return the Computer object.
+            return $computer;
+        }
+        return false;
     }
 
     /**
@@ -206,23 +241,7 @@ class ITComputers
 
         // Loop through each row in the result set.
         while ($row = $result->fetch_assoc()) {
-            // Create a new Computer object using the data from the current row.
-            $computer = new Computer(
-                $row["asset_number"],
-                $row["make"],
-                $row["model"],
-                $row["condition"],
-                $row["device_type"],
-                $row["primary_user"],
-                $row["location"],
-                $row["additional_information"],
-                $row["notes"]
-            );
-
-            // Set the id, created_date, and modified_date properties of the Computer object.
-            $computer->id = $row["id"];
-            $computer->created_date = $row["created_date"];
-            $computer->modified_date = $row["modified_date"];
+            $computer = Computer::fromJSON($row);
 
             // Add the Computer object to the computers array.
             array_push($computers, $computer);
@@ -238,12 +257,18 @@ class ITComputers
      * @param Computer $computer The computer object to add.
      * @return bool Returns true if the operation was successful, false otherwise.
      */
-    function addComputer(Computer $computer): bool
+    function addComputer(Computer $computer): Computer|bool
     {
-        $stmt = $this->db->prepare("INSERT INTO `computers` (`asset_number`, `make`, `model`, `condition`, `device_type`, `primary_user`, `location`, `additional_information`, `notes`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("isssissss", $computer->asset_number, $computer->make, $computer->model, $computer->condition, $computer->device_type, $computer->primary_user, $computer->location, $computer->additional_information, $computer->notes);
+        $stmt = $this->db->prepare("INSERT INTO `computers` (`asset_number`, `make`, `model`, `condition`, `device_type`, `operating_system`, `primary_user`, `location`, `additional_information`, `notes`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $condition = $computer->condition->value;
+        $device_type = $computer->device_type->value;
+        $operating_system = $computer->operating_system->value;
+        $additional_information = json_encode($computer->additional_information);
+        $stmt->bind_param("isssiiisss", $computer->asset_number, $computer->make, $computer->model, $condition, $device_type, $operating_system, $computer->primary_user, $computer->location, $additional_information, $computer->notes);
         $stmt->execute();
-        return $stmt->affected_rows > 0;
+        if ($stmt->affected_rows <= 0) return false;
+        $id = $stmt->insert_id;
+        return $this->getComputer($id);
     }
 
     /**
@@ -254,8 +279,13 @@ class ITComputers
      */
     function updateComputer(Computer $computer): bool
     {
-        $stmt = $this->db->prepare("UPDATE `computers` SET `asset_number` = ?, `make` = ?, `model` = ?, `condition` = ?, `device_type` = ?, `primary_user` = ?, `location` = ?, `additional_information` = ?, `notes` = ? WHERE `id` = ?");
-        $stmt->bind_param("isssissssi", $computer->asset_number, $computer->make, $computer->model, $computer->condition, $computer->device_type, $computer->primary_user, $computer->location, $computer->additional_information, $computer->notes, $computer->id);
+        $stmt = $this->db->prepare("UPDATE `computers` SET `asset_number` = ?, `make` = ?, `model` = ?, `condition` = ?, `device_type` = ?, `operating_system` = ?, `primary_user` = ?, `location` = ?, `additional_information` = ?, `notes` = ?, `modified_date` = ? WHERE `id` = ?");
+        $condition = $computer->condition->value;
+        $device_type = $computer->device_type->value;
+        $operating_system = $computer->operating_system->value;
+        $additional_information = json_encode($computer->additional_information);
+        $modified_date = date("Y-m-d H:i:s");
+        $stmt->bind_param("isssiiissssi", $computer->asset_number, $computer->make, $computer->model, $condition, $device_type, $operating_system, $computer->primary_user, $computer->location, $additional_information, $computer->notes, $modified_date, $computer->id);
         $stmt->execute();
         return $stmt->affected_rows > 0;
     }
@@ -323,23 +353,8 @@ class ITComputers
 
         // Loop through each row in the result set.
         while ($row = $result->fetch_assoc()) {
-            // Create a new Computer object for each row, using the data from the row.
-            $computer = new Computer(
-                $row["asset_number"],
-                $row["make"],
-                $row["model"],
-                $row["condition"],
-                $row["device_type"],
-                $row["primary_user"],
-                $row["location"],
-                $row["additional_information"],
-                $row["notes"]
-            );
 
-            // Set the id, created_date, and modified_date properties of the Computer object.
-            $computer->id = $row["id"];
-            $computer->created_date = $row["created_date"];
-            $computer->modified_date = $row["modified_date"];
+            $computer = Computer::fromJSON($row);
 
             // Add the Computer object to the array.
             array_push($computers, $computer);
@@ -401,24 +416,7 @@ class ITComputers
 
         // Loop through each row in the result set.
         while ($row = $result->fetch_assoc()) {
-            // Create a new Computer object using the data from the row.
-            $computer = new Computer(
-                $row["asset_number"],
-                $row["make"],
-                $row["model"],
-                $row["condition"],
-                $row["device_type"],
-                $row["primary_user"],
-                $row["location"],
-                $row["additional_information"],
-                $row["notes"]
-            );
-
-            // Set the id, created_date, and modified_date properties of the Computer object.
-            $computer->id = $row["id"];
-            $computer->created_date = $row["created_date"];
-            $computer->modified_date = $row["modified_date"];
-
+            $computer = Computer::fromJSON($row);
             // Add the Computer object to the computers array.
             array_push($computers, $computer);
         }
