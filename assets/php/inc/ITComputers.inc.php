@@ -62,6 +62,39 @@ class Computer
         $this->created_date = new DateTime();
         $this->modified_date = new DateTime();
     }
+
+    /**
+     * This function returns a JSON representation of the Computer object.
+     * @return string The JSON representation of the Computer object, or an boolean false if the JSON encoding failed.
+     */
+    public static function fromJSON(string $json): Computer|bool
+    {
+        $data = json_decode($json, true);
+        if ($data) {
+            try {
+
+                $computer = new Computer(
+                    $data["asset_number"],
+                    $data["make"],
+                    $data["model"],
+                    $data["condition"],
+                    $data["device_type"],
+                    $data["primary_user"],
+                    $data["location"],
+                    $data["additional_information"],
+                    $data["notes"]
+                );
+                $computer->id = $data["id"];
+                $computer->created_date = new DateTime($data["created_date"]);
+                $computer->modified_date = new DateTime($data["modified_date"]);
+                return $computer;
+            } catch (Exception) {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }
 
 class ITComputers
@@ -73,7 +106,7 @@ class ITComputers
      */
     function __construct()
     {
-        require_once "config.inc.php";
+        require_once $_SERVER['DOCUMENT_ROOT'] . "/assets/php/connections.inc.php";
         $this->db = DB_Connect::connect();
 
         // Create tables if they don't exist
