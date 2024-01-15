@@ -1,5 +1,6 @@
 @charset "UTF-8";
-@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,700);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,800,900);
+
 :root {
     --primary: #c82333;
 }
@@ -123,4 +124,130 @@ h2 a {
 ::selection, ::-moz-selection {
     background: #42baff;
     color: #0e240a;
+}
+
+input {
+    height: 100%;
+    outline: none;
+    border: none;
+    padding: 1rem 5px;
+    background-color: #323c50;
+    font-weight: 600;
+    color: white;
+    width: calc(100% - 10rem);
+}
+
+input::placeholder {
+    color: #a7a1ae;
+}
+
+button, .button {
+    outline: none;
+    border: none;
+    transition: transform, box-shadow, background-color, color;
+    transition-duration: 0.4s;
+    transition-timing-function: line;
+    padding: 1rem;
+    color: #a7a1ae;
+    background-color: #323c50;
+    display: inline-flex;
+    font-size: 1rem;
+}
+
+button:hover, .button:hover {
+    background-color: #FFF842;
+    color: #403E10;
+    font-weight: bold;
+
+    box-shadow: #7F7C21 -1px 1px, #7F7C21 -2px 2px, #7F7C21 -3px 3px, #7F7C21 -4px 4px, #7F7C21 -5px 5px, #7F7C21 -6px 6px;
+    transform: translate3d(6px, -6px, 0);
+    cursor: pointer;
+    padding: 1rem;
+}
+
+.search-area {
+    margin: auto;
+    width: 25%;
+    min-width: 500px;
+}
+
+::backdrop {
+    backdrop-filter: blur(5px) contrast(0.8) brightness(0.75);
+}
+
+dialog {
+    outline: none;
+    border: none;
+    width: 80%;
+    height: 80%;
+    background-color: #333e52;
+    color: white;
+}
+
+dialog h2 {
+    font-size: 4rem;
+    margin: 0;
+    padding: 0;
+    font-weight: 700;
+}
+
+dialog .close-button {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 1rem;
+    right: 1rem;
+    width: 4rem;
+    aspect-ratio: 1;
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+dialog fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 0 21%;
+    /* explanation below */
+    margin: 1rem 4rem;
+    margin-bottom: 2rem;
+    border-color: hsla(219, 23%, 26%, 70%);
+}
+
+dialog fieldset .checkbox {
+    display: flex;
+    flex-grow: 1;
+    align-items: center;
+    min-width: 20%;
+    background-color: #1f273949;
+    margin: 2px;
+    transition: background-color 0.2s;
+}
+
+dialog fieldset .checkbox:hover {
+    background-color: #1F2739;
+}
+
+dialog fieldset .checkbox label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 1rem 10px;
+    cursor: pointer;
+
+}
+
+dialog fieldset .checkbox input {
+    width: 20px;
+    height: 20px;
+    margin-right: 1rem;
+    outline: none;
+    border: none;
+}
+dialog{
+    overflow: hidden;
+}
+dialog .content {
+    overflow: scroll;
+    max-height: 700px;
 }
