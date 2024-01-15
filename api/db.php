@@ -9,10 +9,16 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     // Get specific computer
     if (isset($_GET["id"])) {
         $id = $_GET["id"];
-        $computer = $computers->getComputer($id);
-        if ($computer) {
+        try{
+
+            $response = $computers->getComputer($id);
+        }catch(Exception $e){
+            http_response_code(404);
+            die(json_encode(array("message" => "Failed to get computer", "error" => $e->getMessage())));
+        }
+        if ($response) {
             http_response_code(200);
-            die(json_encode($computer));
+            die(json_encode($response));
         } else {
             http_response_code(404);
             die(json_encode(array("message" => "Computer not found")));
@@ -32,13 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $offset = isset($_GET["offset"]) ? $_GET["offset"] : 0;
         $ascending = isset($_GET["ascending"]) ? $_GET["ascending"] : true;
         $computers = $computers->searchComputers($search, $limit, $offset, $ascending);
-        if ($computers) {
-            http_response_code(200);
-            die(json_encode(["computers" => $computers, "count" => count($computers)]));
-        } else {
-            http_response_code(404);
-            die(json_encode(array("message" => "No computers found")));
-        }
+        http_response_code(200);
+        die(json_encode(["computers" => $computers, "count" => count($computers)]));
     }
 
     // Filter computers
@@ -48,40 +49,76 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         $offset = isset($_GET["offset"]) ? $_GET["offset"] : 0;
         $ascending = isset($_GET["ascending"]) ? $_GET["ascending"] : true;
         $computers = $computers->filterComputers($filter, $limit, $offset, $ascending);
-        if ($computers) {
-            http_response_code(200);
-            die(json_encode(["computers" => $computers, "count" => count($computers)]));
-        } else {
-            http_response_code(404);
-            die(json_encode(array("message" => "No computers found")));
-        }
+        http_response_code(200);
+        die(json_encode(["computers" => $computers, "count" => count($computers)]));
     }
 
     die(json_encode($computers->getComputers()));
 } else if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $data = Computer::fromJSON(file_get_contents("php://input"));
+    $body = file_get_contents("php://input");
+    $data = Computer::fromJSON($body);
 
     if ($data && $data instanceof Computer) {
-        $computer = $computers->addComputer($data);
-        if ($computer) {
-            http_response_code(201);
-            die(json_encode($computer));
-        } else {
+        try {
+
+            $response = $computers->addComputer($data);
+            if ($response && $response instanceof Computer) {
+                http_response_code(201);
+                die(json_encode($response));
+            } else {
+                http_response_code(500);
+                die(json_encode(array("message" => "Failed to add computer")));
+            }
+        } catch (Exception $e) {
             http_response_code(500);
-            die(json_encode(array("message" => "Failed to add computer")));
+            die(json_encode(array("message" => "Failed to add computer", "error" => $e->getMessage())));
         }
     } else {
+        $body = json_decode($body, true);
+        $missingField = [];
+
+        if (!isset($body["asset_number"])) {
+            array_push($missingField, "asset_number");
+        }
+        if (!isset($body["make"])) {
+            array_push($missingField, "make");
+        }
+        if (!isset($body["model"])) {
+            array_push($missingField, "model");
+        }
+        if (!isset($body["condition"])) {
+            array_push($missingField, "condition");
+        }
+        if (!isset($body["device_type"])) {
+            array_push($missingField, "device_type");
+        }
+        if (!isset($body["operating_system"])) {
+            array_push($missingField, "operating_system");
+        }
+        if (!isset($body["primary_user"])) {
+            array_push($missingField, "primary_user");
+        }
+        if (!isset($body["location"])) {
+            array_push($missingField, "location");
+        }
+        if (!isset($body["additional_information"])) {
+            array_push($missingField, "additional_information");
+        }
+        if (!isset($body["notes"])) {
+            array_push($missingField, "notes");
+        }
+
         http_response_code(400);
-        die(json_encode(array("message" => "Invalid JSON")));
+        die(json_encode(array("message" => "Invalid JSON", "missing_fields" => $missingField)));
     }
 } else if ($_SERVER["REQUEST_METHOD"] === "PUT") {
     $data = Computer::fromJSON(file_get_contents("php://input"));
 
     if ($data && $data instanceof Computer) {
-        $computer = $computers->updateComputer($data);
-        if ($computer) {
+        $response = $computers->updateComputer($data);
+        if ($response) {
             http_response_code(200);
-            die(json_encode($computer));
+            die(json_encode(["success" => $response]));
         } else {
             http_response_code(500);
             die(json_encode(array("message" => "Failed to update computer")));
@@ -93,10 +130,10 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     if (isset($_GET["id"])) {
         $id = $_GET["id"];
-        $computer = $computers->deleteComputer($id);
-        if ($computer) {
+        $response = $computers->deleteComputer($id);
+        if ($response) {
             http_response_code(200);
-            die(json_encode($computer));
+            die(json_encode(["message" => "Computer deleted successfully!"]));
         } else {
             http_response_code(500);
             die(json_encode(array("message" => "Failed to delete computer")));
