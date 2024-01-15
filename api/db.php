@@ -59,8 +59,49 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     die(json_encode($computers->getComputers()));
 } else if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $data = Computer::fromJSON(file_get_contents("php://input"));
+
+    if ($data && $data instanceof Computer) {
+        $computer = $computers->addComputer($data);
+        if ($computer) {
+            http_response_code(201);
+            die(json_encode($computer));
+        } else {
+            http_response_code(500);
+            die(json_encode(array("message" => "Failed to add computer")));
+        }
+    } else {
+        http_response_code(400);
+        die(json_encode(array("message" => "Invalid JSON")));
+    }
 } else if ($_SERVER["REQUEST_METHOD"] === "PUT") {
+    $data = Computer::fromJSON(file_get_contents("php://input"));
+
+    if ($data && $data instanceof Computer) {
+        $computer = $computers->updateComputer($data);
+        if ($computer) {
+            http_response_code(200);
+            die(json_encode($computer));
+        } else {
+            http_response_code(500);
+            die(json_encode(array("message" => "Failed to update computer")));
+        }
+    } else {
+        http_response_code(400);
+        die(json_encode(array("message" => "Invalid JSON")));
+    }
 } else if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
+    if (isset($_GET["id"])) {
+        $id = $_GET["id"];
+        $computer = $computers->deleteComputer($id);
+        if ($computer) {
+            http_response_code(200);
+            die(json_encode($computer));
+        } else {
+            http_response_code(500);
+            die(json_encode(array("message" => "Failed to delete computer")));
+        }
+    }
 }
-http_response_code(405);
-die(json_encode(array("message" => "Method not allowed")));
+http_response_code(400);
+die(json_encode(array("message" => "Invalid request")));
