@@ -1,55 +1,43 @@
-# Mardens Web App Template
+# ITComputers API Documentation
 
-## Introduction
+This API provides access to the `computers` table in the database. It supports operations to get a specific computer, get the count of computers, search for computers, and filter computers.
 
-Welcome to the Mardens Web App Template! This template provides a solid foundation for developing web applications at Mardens Inc. Follow the instructions below for a smooth setup and start building amazing web apps.
+## Get a Specific Computer
 
-## Installation
+To get a specific computer, make a GET request to the API with the `id` parameter.
 
-### Git
-
-Clone the repository using the following command:
-
-```bash
-git clone --recurse https://github.com/Mardens-Inc/Web-Template.git
+```
+GET /db.php?id=1
 ```
 
-### Composer
+This will return a JSON object representing the computer with the id of 1. If no computer is found with the provided id, it will return a 404 status code and a JSON object with a "Computer not found" message.
 
-Update the composer dependencies:
+## Get Computer Count
 
-```bash
-composer update
+To get the count of computers, make a GET request to the API with the `count` parameter.
+
+```
+GET /db.php?count
 ```
 
-## Start Server
+This will return a JSON object with the count of computers.
 
-You can choose between the provided batch file or manual setup.
+## Search Computers
 
-### Using Batch File
+To search for computers, make a GET request to the API with the `search` parameter. You can also provide `limit`, `offset`, and `ascending` parameters to limit the number of results and sort them.
 
-Launch the `start-server.bat` file. It will automatically set up and start the server for you.
+```
+GET /db.php?search=Dell&limit=10&offset=0&ascending=true
+```
 
-### Manual Setup
+This will return a JSON object with an array of computers that match the search term and the count of computers in the array. If no computers are found, it will return a 404 status code and a JSON object with a "No computers found" message.
 
-If you prefer manual setup, follow these steps:
+## Filter Computers
 
-1. Navigate to the project directory in your terminal.
+To filter computers, make a GET request to the API with the `filter` parameter. The `filter` parameter should be a JSON-encoded array of filters. You can also provide `limit`, `offset`, and `ascending` parameters to limit the number of results and sort them.
 
-2. Run the following command:
+```
+GET /db.php?filter=[{"column":"make","value":"Dell"},{"column":"condition","value":1}]&limit=10&offset=0&ascending=true
+```
 
-   ```bash
-   /path/to/php.exe -S 127.0.0.1:5522
-   ```
-
-   Replace `/path/to/php.exe` with the actual path to your PHP executable and `5522` with your desired port.
-
-## Additional Notes
-
-- Ensure that your PHP version is at least 8.0 and up
-
-- Customize the server setup according to your environment.
-
-- Explore and leverage the features provided in this template to expedite your web development process.
-
-Feel free to reach out for any assistance or further guidance. Happy coding!
+This will return a JSON object with an array of computers that match the filters and the count of computers in the array. If no computers are found, it will return a 404 status code and a JSON object with a "No computers found" message.
