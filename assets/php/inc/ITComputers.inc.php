@@ -323,7 +323,7 @@ class ITComputers
         $device_type = $computer->device_type->value;
         $operating_system = $computer->operating_system->value;
         $additional_information = json_encode($computer->additional_information);
-        $stmt->bind_param("isssiiisss", $computer->asset_number, $computer->make, $computer->model, $condition, $device_type, $operating_system, $computer->primary_user, $computer->location, $additional_information, $computer->notes);
+        $stmt->bind_param("issiiissss", $computer->asset_number, $computer->make, $computer->model, $condition, $device_type, $operating_system, $computer->primary_user, $computer->location, $additional_information, $computer->notes);
         $stmt->execute();
         if ($stmt->affected_rows <= 0) return false;
         $id = $stmt->insert_id;
@@ -541,7 +541,6 @@ class ITComputers
 
         $fm = new FileMaker("Admin", "19MRCC77!", "IT Master Computer database", "IT Master Computer database");
         $records = $fm->getRecords(1, 1000);
-        // die(json_encode($records));
         foreach ($records as $record) {
 
             $asset_number = intval($record["fieldData"]["Asset number"]);
@@ -552,9 +551,10 @@ class ITComputers
             $device_type = Computer::parseDeviceType($record["fieldData"]["Device Type"]);
             $operating_system = Computer::parseOperatingSystem($record["fieldData"]["OS"]);
 
+            $primary_user = $record["fieldData"]["Primary User"];
             $location = $record["fieldData"]["Location"];
             $notes = $record["fieldData"]["Notes"];
-
+            
             // add all other fields to additional_information
             $additional_information = [];
             foreach (array_keys($record["fieldData"]) as $field) {
@@ -562,8 +562,8 @@ class ITComputers
                     $additional_information[$field] = $record["fieldData"][$field];
                 }
             }
-
-            $computer = new Computer($asset_number, $make, $model, $condition, $device_type, $operating_system, "", $location, json_encode($additional_information), $notes);
+            
+            $computer = new Computer($asset_number, $make, $model, $condition, $device_type, $operating_system, $primary_user, $location, json_encode($additional_information), $notes);
 
             $this->addComputer($computer);
             array_push($computers, $computer);
