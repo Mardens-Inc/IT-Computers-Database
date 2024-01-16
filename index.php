@@ -43,32 +43,13 @@
                     <td>Condition</td>
                     <td>Device Type</td>
                     <td>Operating System</td>
-                    <td>Primary User</td>
+                    <!-- <td>Primary User</td> -->
                     <td>Location</td>
                     <td>Additional Information</td>
                     <td>Notes</td>
                 </tr>
             </thead>
             <tbody>
-                <?php
-
-                for ($i = 0; $i < 10; $i++) {
-                    echo "
-                <tr>
-                    <td>123456</td>
-                    <td>Apple</td>
-                    <td>Macbook Pro</td>
-                    <td>Good</td>
-                    <td>Laptop</td>
-                    <td>MacOS</td>
-                    <td>John Doe</td>
-                    <td>Portland</td>
-                    <td>None</td>
-                    <td>None</td>
-                </tr>";
-                }
-
-                ?>
             </tbody>
         </table>
     </div>
@@ -205,6 +186,9 @@
             </div>
         </summary>
     </dialog>
+
+    <script src="/assets/js/computers.js"></script>
+    <script src="/assets/js/database.js"></script>
 
 </body>
 
