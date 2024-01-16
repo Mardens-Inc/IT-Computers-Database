@@ -43,7 +43,7 @@
                     <td>Condition</td>
                     <td>Device Type</td>
                     <td>Operating System</td>
-                    <!-- <td>Primary User</td> -->
+                    <td>Primary User</td>
                     <td>Location</td>
                     <td>Additional Information</td>
                     <td>Notes</td>
