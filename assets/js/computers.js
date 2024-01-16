@@ -102,12 +102,12 @@ class Computer {
             <td class="condition">${Computer.getConditionFromNumber(this.condition)}</td>
             <td class="device_type">${Computer.getDeviceTypeFromNumber(this.device_type)}</td>
             <td class="operating_system">${Computer.getOperatingSystemFromNumber(this.operating_system)}</td>
+            <td class="primary_user">${this.primary_user}</td>
             <td class="location">${this.location}</td>
             <td class="additional_information">${this.additional_information}</td>
             <td class="notes">${this.notes}</td>
             </tr>
             `);
-        // <td class="primary_user"></td>
     }
 
     static getConditionFromNumber(number) {
