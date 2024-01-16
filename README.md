@@ -9,6 +9,7 @@ This API provides access to the `computers` table in the database. It supports o
   - [GET Requests](#get-requests)
     - [GET a Specific Computer](#get-a-specific-computer)
     - [GET Enums](#get-enums)
+    - [GET Unique](#retrieve-unique-data)
     - [Get Computer Count](#get-computer-count)
     - [Search Computers](#search-computers)
     - [Filter Computers](#filter-computers)
@@ -30,11 +31,11 @@ download the link or copy it and paste it here.
 
 
 
-## GET Requests
+# GET Requests
 
 This API provides several GET endpoints to retrieve data from the `computers` table in the database.
 
-### GET a Specific Computer
+## GET a Specific Computer
 
 To get a specific computer, make a GET request to the API with the `id` parameter.
 
@@ -96,7 +97,52 @@ Response:
 }
 ```
 
-### Get Computer Count
+Sure, here's the API documentation for the `unique` endpoint:
+
+## Retrieve Unique Data
+
+This endpoint retrieves unique data from the ITComputers database. The `unique` parameter specifies the type of unique data to retrieve.
+
+### Retrieve All Unique Data
+
+To retrieve all unique data, make a GET request to the API with the `unique` parameter set to `all`.
+
+Example:
+
+```bash
+GET /db.php?unique=all
+```
+
+This will return a JSON object with unique `locations` and `make` values.
+
+### Retrieve Unique Locations
+
+To retrieve unique locations, make a GET request to the API with the `unique` parameter set to `locations`.
+
+Example:
+
+```bash
+GET /db.php?unique=locations
+```
+
+This will return a JSON object with unique `locations` values.
+
+### Retrieve Unique Make
+
+To retrieve unique make values, make a GET request to the API with the `unique` parameter set to `make`.
+
+Example:
+
+```bash
+GET /db.php?unique=make
+```
+
+This will return a JSON object with unique `make` values.
+
+If the `unique` parameter is set to a value other than `all`, `locations`, or `make`, the API will return a 400 error with the message "Invalid unique".
+
+
+## Get Computer Count
 
 To get the count of computers, make a GET request to the API with the `count` parameter.
 
@@ -106,7 +152,7 @@ GET /db.php?count
 
 This will return a JSON object with the count of computers.
 
-### Search Computers
+## Search Computers
 
 To search for computers, make a GET request to the API with the `search` parameter. You can also provide `limit`, `offset`, and `ascending` parameters to limit the number of results and sort them.
 
@@ -116,7 +162,7 @@ GET /db.php?search=Dell&limit=10&offset=0&ascending=true
 
 This will return a JSON object with an array of computers that match the search term and the count of computers in the array. If no computers are found, it will return a 404 status code and a JSON object with a "No computers found" message.
 
-### Filter Computers
+## Filter Computers
 
 To filter computers, make a GET request to the API with the `filter` parameter. The `filter` parameter should be a JSON-encoded array of filters. You can also provide `limit`, `offset`, and `ascending` parameters to limit the number of results and sort them.
 
@@ -125,7 +171,7 @@ GET /db.php?filter=[{"column":"make","value":"Dell"},{"column":"condition","valu
 ```
 
 This will return a JSON object with an array of computers that match the filters and the count of computers in the array. If no computers are found, it will return a 404 status code and a JSON object with a "No computers found" message.
-## Create a New Computer
+# Create a New Computer
 
 To create a new computer, make a POST request to the API with the following parameters in the body:
 
@@ -157,7 +203,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
 
 This will return a JSON object with the id of the new computer. If there was an error creating the computer, it will return a 500 status code and a JSON object with an "Error creating computer" message.
 
-## Update a Computer
+# Update a Computer
 
 To update a computer, make a PUT request to the API with the `id` parameter in the URL and the following parameters in the body:
 
@@ -190,7 +236,7 @@ curl -X PUT -H "Content-Type: application/json" -d '{
 This will return a JSON object with the id of the updated computer. If there was an error updating the computer, it will return a 500 status code and a JSON object with an "Error updating computer" message.
 
 
-## Delete a Computer
+# Delete a Computer
 
 To delete a computer, make a DELETE request to the API with the `id` parameter in the URL.
 
