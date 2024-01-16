@@ -17,6 +17,35 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
         }
     }
 
+    if (isset($_GET["unique"])) {
+        $unique = $_GET["unique"];
+        if ($unique === "all") {
+            http_response_code(200);
+            die(json_encode(["locations" => $computers->getUniqueLocations(), "make" => $computers->getUniqueMake()]));
+        } else if ($unique === "locations") {
+            $locations = $computers->getUniqueLocations();
+            if ($locations) {
+                http_response_code(200);
+                die(json_encode(["locations" => $locations]));
+            } else {
+                http_response_code(500);
+                die(json_encode(["message" => "Failed to get locations!"]));
+            }
+        } else if ($unique === "make") {
+            $make = $computers->getUniqueMake();
+            if ($make) {
+                http_response_code(200);
+                die(json_encode(["make" => $make]));
+            } else {
+                http_response_code(500);
+                die(json_encode(["message" => "Failed to get make!"]));
+            }
+        } else {
+            http_response_code(400);
+            die(json_encode(["message" => "Invalid unique"]));
+        }
+    }
+
     if (isset($_GET["enum"])) {
         $enum = $_GET["enum"];
         if ($enum === "all") {
