@@ -55,3 +55,10 @@ table tbody tr td:hover {
     cursor: pointer;
     padding: 2rem 4px;
 }
+
+td.additional_information, td.notes {
+    max-width: 200px;
+    white-space: nowrap;
+    text-overflow: clip;
+    overflow: hidden;
+  }
