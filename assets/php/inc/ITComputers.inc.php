@@ -495,6 +495,17 @@ class ITComputers
         return $locations;
     }
 
+    public function getUniqueMake(){
+        $stmt = $this->db->prepare("SELECT DISTINCT `make` FROM `computers`");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $makes = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($makes, $row["make"]);
+        }
+        return $makes;
+    }
+
     public function getConditions(){
         $names = array_column(Condition::cases(), "name");
         $values = array_column(Condition::cases(), "value");
