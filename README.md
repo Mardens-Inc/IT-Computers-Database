@@ -5,6 +5,7 @@ This API provides access to the `computers` table in the database. It supports o
 # Table of Contents
 - [ITComputers API Documentation](#itcomputers-api-documentation)
   - [Postman](#postman)
+    - [Import](#import)
   - [GET Requests](#get-requests)
     - [GET a Specific Computer](#get-a-specific-computer)
     - [GET Enums](#get-enums)
@@ -16,7 +17,17 @@ This API provides access to the `computers` table in the database. It supports o
   - [Delete a Computer](#delete-a-computer)
 
 # Postman
-Download the postman collection <a href="https://raw.githubusercontent.com/Mardens-Inc/IT-Computers-Database/main/postman-collection.json" download="postman-collection.json" target="_blank">here</a>
+Download the postman collection [here](https://raw.githubusercontent.com/Mardens-Inc/IT-Computers-Database/main/postman-collection.json) or copy it here:
+```
+https://raw.githubusercontent.com/Mardens-Inc/IT-Computers-Database/main/postman-collection.json
+```
+## Import
+click the import button in postman.   
+![image](https://github.com/Mardens-Inc/IT-Computers-Database/assets/5598099/24393246-2e1d-4238-8613-c6a98212853b)   
+download the link or copy it and paste it here.   
+![image](https://github.com/Mardens-Inc/IT-Computers-Database/assets/5598099/220984b4-b9b8-459c-8901-4b9c9599ce51)   
+
+
 
 
 ## GET Requests
