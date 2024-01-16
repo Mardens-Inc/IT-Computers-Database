@@ -16,7 +16,7 @@ This API provides access to the `computers` table in the database. It supports o
   - [Delete a Computer](#delete-a-computer)
 
 # Postman
-Download the postman collection [here](https://raw.githubusercontent.com/Mardens-Inc/IT-Computers-Database/main/postman-collection.json)
+Download the postman collection <a href="https://raw.githubusercontent.com/Mardens-Inc/IT-Computers-Database/main/postman-collection.json" download="postman-collection.json">here</a>
 
 
 ## GET Requests
