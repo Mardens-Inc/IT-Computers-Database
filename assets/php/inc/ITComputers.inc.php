@@ -27,7 +27,7 @@ enum OperatingSystem: int
     case Linux = 2;
     case ChromeOS = 3;
     case Android = 4;
-    case iOS = 5;
+    case IOS = 5;
     case Umix = 6;
     case Other = 7;
 }
@@ -104,7 +104,7 @@ class Computer
                     2 => OperatingSystem::Linux,
                     3 => OperatingSystem::ChromeOS,
                     4 => OperatingSystem::Android,
-                    5 => OperatingSystem::iOS,
+                    5 => OperatingSystem::IOS,
                     6 => OperatingSystem::Umix,
                     7 => OperatingSystem::Other,
                     default => false
@@ -140,6 +140,65 @@ class Computer
             }
         }
         return false;
+    }
+
+    public static function parseOperatingSystem(string $operating_system): OperatingSystem
+    {
+        $operating_system = strtolower($operating_system);
+        if (strpos($operating_system, "windows") !== false) {
+            return OperatingSystem::Windows;
+        } else if (strpos($operating_system, "mac") !== false) {
+            return OperatingSystem::MacOS;
+        } else if (strpos($operating_system, "linux") !== false) {
+            return OperatingSystem::Linux;
+        } else if (strpos($operating_system, "chrome") !== false) {
+            return OperatingSystem::ChromeOS;
+        } else if (strpos($operating_system, "android") !== false) {
+            return OperatingSystem::Android;
+        } else if (strpos($operating_system, "ios") !== false) {
+            return OperatingSystem::IOS;
+        } else if (strpos($operating_system, "umix") !== false) {
+            return OperatingSystem::Umix;
+        }
+        return OperatingSystem::Other;
+    }
+
+    public static function parseCondition(string $condition): Condition
+    {
+        $condition = strtolower($condition);
+        if (strpos($condition, "new") !== false) {
+            return Condition::New;
+        } else if (strpos($condition, "good") !== false) {
+            return Condition::Good;
+        } else if (strpos($condition, "used") !== false) {
+            return Condition::Used;
+        } else if (strpos($condition, "refurb") !== false) {
+            return Condition::Refurbished;
+        } else if (strpos($condition, "broken") !== false) {
+            return Condition::Broken;
+        }
+        return Condition::Good;
+    }
+
+    public static function parseDeviceType(string $device_type): DeviceType
+    {
+        $device_type = strtolower($device_type);
+        if (strpos($device_type, "desktop") !== false) {
+            return DeviceType::Desktop;
+        } else if (strpos($device_type, "laptop") !== false) {
+            return DeviceType::Laptop;
+        } else if (strpos($device_type, "tablet") !== false) {
+            return DeviceType::Tablet;
+        } else if (strpos($device_type, "phone") !== false) {
+            return DeviceType::Phone;
+        } else if (strpos($device_type, "server") !== false) {
+            return DeviceType::Server;
+        } else if (strpos($device_type, "printer") !== false) {
+            return DeviceType::Printer;
+        } else if (strpos($device_type, "other") !== false) {
+            return DeviceType::Other;
+        }
+        return DeviceType::Other;
     }
 }
 
@@ -422,6 +481,82 @@ class ITComputers
         }
 
         // Return the array of Computer objects.
+        return $computers;
+    }
+
+    public function getUniqueLocations(){
+        $stmt = $this->db->prepare("SELECT DISTINCT `location` FROM `computers`");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $locations = array();
+        while ($row = $result->fetch_assoc()) {
+            array_push($locations, $row["location"]);
+        }
+        return $locations;
+    }
+
+    public function getConditions(){
+        $names = array_column(Condition::cases(), "name");
+        $values = array_column(Condition::cases(), "value");
+        
+        // map names to values
+        return array_combine($names,$values);
+    }
+
+    public function getDeviceTypes(){
+        $names = array_column(DeviceType::cases(), "name");
+        $values = array_column(DeviceType::cases(), "value");
+        
+        // map names to values
+        return array_combine($names,$values);
+    }
+
+    public function getOperatingSystems(){
+        $names = array_column(OperatingSystem::cases(), "name");
+        $values = array_column(OperatingSystem::cases(), "value");
+        
+        // map names to values
+        return array_combine($names,$values);
+    }
+
+    public function loadFromFileMaker(): array
+    {
+        require_once $_SERVER['DOCUMENT_ROOT'] . "/assets/php/FMUtil.inc.php";
+        $computers = [];
+        $sql = "DELETE FROM `computers`";
+        $this->db->query($sql);
+        $sql = "ALTER TABLE `computers` AUTO_INCREMENT = 1";
+        $this->db->query($sql);
+
+        $fm = new FileMaker("Admin", "19MRCC77!", "IT Master Computer database", "IT Master Computer database");
+        $records = $fm->getRecords(1, 1000);
+        // die(json_encode($records));
+        foreach ($records as $record) {
+
+            $asset_number = intval($record["fieldData"]["Asset number"]);
+            $make = $record["fieldData"]["Make"];
+            $model = $record["fieldData"]["Model No."];
+
+            $condition = Computer::parseCondition($record["fieldData"]["Condition"]);
+            $device_type = Computer::parseDeviceType($record["fieldData"]["Device Type"]);
+            $operating_system = Computer::parseOperatingSystem($record["fieldData"]["OS"]);
+
+            $location = $record["fieldData"]["Location"];
+            $notes = $record["fieldData"]["Notes"];
+
+            // add all other fields to additional_information
+            $additional_information = [];
+            foreach (array_keys($record["fieldData"]) as $field) {
+                if (!in_array($field, ["Asset number", "Make", "Model No.", "Condition", "Device Type", "OS", "Location", "Notes"])) {
+                    $additional_information[$field] = $record["fieldData"][$field];
+                }
+            }
+
+            $computer = new Computer($asset_number, $make, $model, $condition, $device_type, $operating_system, "", $location, json_encode($additional_information), $notes);
+
+            $this->addComputer($computer);
+            array_push($computers, $computer);
+        }
         return $computers;
     }
 }
