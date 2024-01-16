@@ -1,19 +1,84 @@
 # ITComputers API Documentation
 
 This API provides access to the `computers` table in the database. It supports operations to get a specific computer, get the count of computers, search for computers, and filter computers.
-## Get Requests
+
+# Table of Contents
+- [ITComputers API Documentation](#itcomputers-api-documentation)
+  - [GET Requests](#get-requests)
+    - [GET a Specific Computer](#get-a-specific-computer)
+    - [GET Enums](#get-enums)
+    - [Get Computer Count](#get-computer-count)
+    - [Search Computers](#search-computers)
+    - [Filter Computers](#filter-computers)
+  - [Create a New Computer](#create-a-new-computer)
+  - [Update a Computer](#update-a-computer)
+  - [Delete a Computer](#delete-a-computer)
+
+## GET Requests
 
 This API provides several GET endpoints to retrieve data from the `computers` table in the database.
 
-### Get a Specific Computer
+### GET a Specific Computer
 
 To get a specific computer, make a GET request to the API with the `id` parameter.
 
+Sure, here's a brief API documentation for the GET method in the provided PHP code:
+
+---
+
+## GET Enums
+
+This endpoint is used to retrieve data from the ITComputers database.
+
+### Parameters
+
+- `mirror`: Mirrors the data from FileMaker. If successful, it returns a 200 status code with a message "Mirror successful!". If it fails, it returns a 500 status code with a message "Failed to mirror!".
+
+- `enum`: Enumerates the data based on the provided value. The possible values are:
+  - `all`: Returns all the operating systems, device types, and conditions.
+  - `conditions`: Returns all the conditions.
+  - `device_types`: Returns all the device types.
+  - `operating_systems`: Returns all the operating systems.
+  If an invalid value is provided, it returns a 400 status code with a message "Invalid enum".
+
+- `id`: Retrieves a specific computer based on the provided ID. If successful, it returns the computer data. If it fails, it returns a 404 status code with a message "Failed to get computer" and the error message.
+
+### Responses
+
+- `200 OK`: The request was successful. The response body will contain the requested data.
+- `400 Bad Request`: The request was invalid. The response body will contain an error message.
+- `404 Not Found`: The requested computer was not found. The response body will contain an error message.
+- `500 Internal Server Error`: The server encountered an error. The response body will contain an error message.
+
+### Example
+
+Request:
+
 ```
-GET /db.php?id=1
+GET /db.php?enum=all
 ```
 
-This will return a JSON object representing the computer with the id of 1. If no computer is found with the provided id, it will return a 404 status code and a JSON object with a "Computer not found" message.
+Response:
+
+```json
+{
+    "operating_systems": {
+        "Windows": 0,
+        "MacOS": 1,
+        /* ...etc */
+    },
+    "device_types": {
+        "Desktop": 0,
+        "Laptop": 1,
+        /* ...etc */
+    },
+    "conditions": {
+        "New": 0,
+        "Good": 1,
+        /* ...etc */
+    }
+}
+```
 
 ### Get Computer Count
 
