@@ -6,13 +6,44 @@ $computers = new ITComputers();
 
 if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
+    if (isset($_GET["mirror"])) {
+        $response = $computers->loadFromFileMaker();
+        if ($response) {
+            http_response_code(200);
+            die(json_encode(["message" => "Mirror successful!"]));
+        } else {
+            http_response_code(500);
+            die(json_encode(["message" => "Failed to mirror!"]));
+        }
+    }
+
+    if (isset($_GET["enum"])) {
+        $enum = $_GET["enum"];
+        if ($enum === "all") {
+            http_response_code(200);
+            die(json_encode(["operating_systems" => $computers->getOperatingSystems(), "device_types" => $computers->getDeviceTypes(), "conditions" => $computers->getConditions()]));
+        } else if ($enum === "conditions") {
+            http_response_code(200);
+            die(json_encode(["conditions" => $computers->getConditions()]));
+        } else if ($enum === "device_types") {
+            http_response_code(200);
+            die(json_encode(["device_types" => $computers->getDeviceTypes()]));
+        } else if ($enum === "operating_systems") {
+            http_response_code(200);
+            die(json_encode(["operating_systems" => $computers->getOperatingSystems()]));
+        } else {
+            http_response_code(400);
+            die(json_encode(["message" => "Invalid enum"]));
+        }
+    }
+
     // Get specific computer
     if (isset($_GET["id"])) {
         $id = $_GET["id"];
-        try{
+        try {
 
             $response = $computers->getComputer($id);
-        }catch(Exception $e){
+        } catch (Exception $e) {
             http_response_code(404);
             die(json_encode(array("message" => "Failed to get computer", "error" => $e->getMessage())));
         }
