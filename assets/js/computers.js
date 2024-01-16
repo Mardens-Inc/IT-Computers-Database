@@ -27,6 +27,19 @@ class OperatingSystem {
     static Other = 7;
 }
 
+class UniqueFields {
+    static All = "all";
+    static Make = "make";
+    static Location = "locations";
+}
+
+class Enums {
+    static All = "all";
+    static Condition = "condition";
+    static DeviceType = "device_types";
+    static OperatingSystem = "operating_systems";
+}
+
 class Computer {
     /**
      * Creates a new computer
@@ -75,11 +88,95 @@ class Computer {
             return false;
         }
     }
+
+    static fromObject(object) {
+        return object && Object.assign(new Computer(), object);
+    }
+
+    toDOM() {
+        return $(`
+        <tr>
+            <td class="asset_number">${this.asset_number}</td>
+            <td class="make">${this.make}</td>
+            <td class="model">${this.model}</td>
+            <td class="condition">${Computer.getConditionFromNumber(this.condition)}</td>
+            <td class="device_type">${Computer.getDeviceTypeFromNumber(this.device_type)}</td>
+            <td class="operating_system">${Computer.getOperatingSystemFromNumber(this.operating_system)}</td>
+            <td class="location">${this.location}</td>
+            <td class="additional_information">${this.additional_information}</td>
+            <td class="notes">${this.notes}</td>
+            </tr>
+            `);
+        // <td class="primary_user"></td>
+    }
+
+    static getConditionFromNumber(number) {
+        let conditionsMap = computers.enums.conditions;
+        for (const condition in conditionsMap) {
+            if (conditionsMap[condition] == number) {
+                return condition;
+            }
+        }
+    }
+    static getOperatingSystemFromNumber(number) {
+        let operatingSystemsMap = computers.enums.operating_systems;
+        for (const operatingSystem in operatingSystemsMap) {
+            if (operatingSystemsMap[operatingSystem] == number) {
+                return operatingSystem;
+            }
+        }
+    }
+    static getDeviceTypeFromNumber(number) {
+        let deviceTypesMap = computers.enums.device_types;
+        for (const deviceType in deviceTypesMap) {
+            if (deviceTypesMap[deviceType] == number) {
+                return deviceType;
+            }
+        }
+    }
 }
 
 class Computers {
+    computers = [];
     constructor() {
         this.baseUrl = "/api/db.php";
+        this.makes = [];
+        this.locations = [];
+        this.computers = [];
+        this.enums = {};
+        this.getUnique().then((data) => {
+            this.makes = data.makes;
+            this.locations = data.locations;
+        });
+        this.getEnums()
+            .then((data) => {
+                this.enums = data;
+            })
+            .then(() => {
+                this.getComputers().then((data) => {
+                    this.computers = data;
+                    $(document).trigger("computersLoaded", [this.computers]);
+                });
+            });
+    }
+
+    /**
+     * Gets a list of computers from the database
+     * @returns {Array<Computer>} An array of computers
+     */
+    async getComputers() {
+        return await $.ajax({
+            url: this.baseUrl,
+            method: "GET",
+            dataType: "json",
+            success: (data) => {
+                const computers = [];
+                for (const computer of data) {
+                    computers.push(Computer.fromJSON(computer));
+                }
+                return computers;
+            },
+        });
     }
 
     /**
@@ -199,6 +296,34 @@ class Computers {
             dataType: "json",
             success: () => true,
             error: () => false,
+        });
+    }
+
+    /**
+     * Get a list of unique values from the database
+     * @param {UniqueFields} field The field to get unique values from
+     * @returns {JSON} The response from the server
+     */
+    async getUnique(field = UniqueFields.All) {
+        return await $.ajax({
+            url: `${this.baseUrl}?unique=${field}`,
+            method: "GET",
+            dataType: "json",
+            success: (data) => data,
+        });
+    }
+
+    /**
+     * Get a list of unique values from the database
+     * @param {Enums} field The field to get unique values from
+     * @returns {JSON} The response from the server
+     */
+    async getEnums(field = Enums.All) {
+        return await $.ajax({
+            url: `${this.baseUrl}?enum=${field}`,
+            method: "GET",
+            dataType: "json",
+            success: (data) => data,
         });
     }
 }
