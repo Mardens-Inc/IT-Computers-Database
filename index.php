@@ -1,3 +1,7 @@
+<?php
+$_ENV["APP_PATH"] = $_SERVER['DOCUMENT_ROOT'] . "/apps/IT-Computers";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,9 +9,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Computers Database - Mardens Apps</title>
+    <link rel="stylesheet" href="./assets/css/main.min.css?version=1">
     <link rel="stylesheet" href="/assets/css/main.min.css?version=1">
+    <link rel="stylesheet" href="/assets/css/apps.min.css?version=1">
     <link rel="stylesheet" href="/assets/css/table.min.css?version=1">
     <link rel="stylesheet" href="/assets/css/scrollbar.min.css?version=1">
+    <link rel="stylesheet" href="/assets/css/inputs.min.css?version=1">
     <link rel="icon" href="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img,w_32,h_32/https://www.mardens.com/wp-content/uploads/2019/03/cropped-Mardens-Favicon-1-32x32.png" sizes="32x32">
     <link rel="icon" href="https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img,w_192,h_192/https://www.mardens.com/wp-content/uploads/2019/03/cropped-Mardens-Favicon-1-192x192.png" sizes="192x192">
     <!-- Font Awesome -->
@@ -23,6 +30,7 @@
 
 <body>
     <header>
+        <a id="go-back-button" class="button" href="/apps/"><i class="fa-solid fa-reply"></i> <span>All Apps</span></a>
         <h1><span class="blue">&lt;</span>IT<span class="blue">&gt;</span> <span class="yellow">Computers</pan>
         </h1>
         <h2> Created for Mardens Surplus & Salvage. </h2>
@@ -187,8 +195,16 @@
         </summary>
     </dialog>
 
-    <script src="/assets/js/computers.js"></script>
-    <script src="/assets/js/database.js"></script>
+    <script src="./assets/js/computers.js"></script>
+    <script src="./assets/js/database.js"></script>
+    
+    <script src="/assets/js/inputs.min.js"></script>
+
+    <script>
+        startLoading();
+    </script>
+
+    <script type="module" src="/assets/js/auth.js"></script>
 
 </body>
 
