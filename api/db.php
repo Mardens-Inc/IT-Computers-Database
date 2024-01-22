@@ -1,5 +1,6 @@
 <?php
-require_once($_SERVER['DOCUMENT_ROOT'] . '/assets/php/inc/ITComputers.inc.php');
+$_ENV["APP_PATH"] = $_SERVER['DOCUMENT_ROOT'] . "/apps/IT-Computers";
+require_once($_ENV["APP_PATH"] . '/assets/php/inc/ITComputers.inc.php');
 header("Content-Type: application/json");
 
 $computers = new ITComputers();
