@@ -1,5 +1,5 @@
 <?php
-
+$_ENV["APP_PATH"] = $_SERVER['DOCUMENT_ROOT'] . "/apps/IT-Computers";
 enum Condition: int
 {
     case New = 0;
