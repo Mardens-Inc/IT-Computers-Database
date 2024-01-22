@@ -139,7 +139,8 @@ class Computer {
 class Computers {
     computers = [];
     constructor() {
-        this.baseUrl = "/api/db.php";
+        this.baseUrl = `${window.location.pathname}api/db.php`;
+        
         this.makes = [];
         this.locations = [];
         this.computers = [];
