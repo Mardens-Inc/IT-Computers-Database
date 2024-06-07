@@ -5,8 +5,8 @@ import $ from "jquery"
 
 export default function ThemeSwitcher() {
     return (
-        <Switch size="lg" color="success" startContent={<SunIcon/>} endContent={<MoonIcon/>} defaultSelected={getCurrentTheme() === themes.light} onValueChange={(value) => {
-            applyTheme(value ? themes.light : themes.dark)
+        <Switch size="lg" color="success" startContent={<SunIcon/>} endContent={<MoonIcon/>} defaultSelected={getCurrentTheme() === Themes.light} onValueChange={(value) => {
+            applyTheme(value ? Themes.light : Themes.dark)
         }}/>
     );
 }
@@ -47,24 +47,25 @@ export const SunIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
 );
 
 
-enum themes {
+export enum Themes {
     default,
     light,
     dark
 }
 
-export function applyTheme(theme: themes = themes.default) {
-    const name: string = theme == themes.light ? "light" : theme == themes.dark ? "dark" : (localStorage.getItem("theme") ?? "light");
+export function applyTheme(theme: Themes = Themes.default) {
+    const name: string = theme == Themes.light ? "light" : theme == Themes.dark ? "dark" : (localStorage.getItem("theme") ?? "light");
     localStorage.setItem("theme", name)
     $("html").removeClass("dark").removeClass("light").addClass(name)
+    $(window).trigger("themeChange", theme)
 }
 
-export function getCurrentTheme(): themes {
+export function getCurrentTheme(): Themes {
     switch (localStorage.getItem("theme")) {
         case "dark":
-            return themes.dark
+            return Themes.dark
         case "light":
         default:
-            return themes.light;
+            return Themes.light;
     }
 }
