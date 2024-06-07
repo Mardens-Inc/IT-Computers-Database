@@ -86,7 +86,7 @@ for (const record of records) {
     items.push(item);
 }
 
-await fetch("http://computers.local/api/", {method: "POST", body: JSON.stringify(items), headers: {"Content-Type": "application/json"}})
+await fetch("https://computers.mardens.com/api/", {method: "POST", body: JSON.stringify(items), headers: {"Content-Type": "application/json"}})
     .then(res => res.json())
     .then(console.log)
     .catch(console.error);
