@@ -1,7 +1,7 @@
 /**
  * A class representing a Filemaker record.
  */
-class FilemakerRecord {
+export class FilemakerRecord {
     /**
      * Constructor for creating an instance of the class.
      *
@@ -61,7 +61,7 @@ class FilemakerRecord {
  *
  * @class
  */
-class Filemaker {
+export default class Filemaker {
 
     /**
      * Creates a new instance of the Filemaker class.
@@ -78,8 +78,6 @@ class Filemaker {
         this.password = password;
         this.database = database;
         this.layout = layout;
-        process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
     }
 
     /**
@@ -302,7 +300,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records?limit=${limit}&offset=${offset}`, {headers});
             let json = await response.json();
             let records = [];
@@ -324,7 +321,6 @@ class Filemaker {
      * @throws {Error} - If the required fields (username, password, database, layout) are not set, or if the fetch operation fails.
      */
     async getRecord(id) {
-
         if (this.username === "" && this.password === "" && this.database === "" && this.layout === "") {
             throw new Error("Required fields are not set. Please set the username, password, database, and layout before making a request.");
         }
@@ -335,7 +331,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records/${id}`, {headers});
             let json = await response.json();
             return FilemakerRecord.fromJSON(json);
@@ -354,7 +349,6 @@ class Filemaker {
      * @return {Promise<number>} The count of records.
      */
     async getRecordCount() {
-
         if (this.username === "" && this.password === "" && this.database === "" && this.layout === "") {
             throw new Error("Required fields are not set. Please set the username, password, database, and layout before making a request.");
         }
@@ -365,16 +359,12 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records/count`, {headers});
             let json = await response.json();
             return json.count;
         } catch (e) {
             console.error(e);
             throw new Error("Failed to fetch records");
-        } finally {
-            // Ensure that the NODE_TLS_REJECT_UNAUTHORIZED status is always reset to '1', even if an error is thrown
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1';
         }
     }
 
@@ -397,7 +387,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/fields`, {headers});
             let json = await response.json();
             return Array.from(json);
@@ -429,7 +418,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records/${id}?force-add=${addIfMissing}`, {
                 method: "POST",
                 headers,
@@ -461,7 +449,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records/${id}`, {
                 method: "DELETE",
                 headers
@@ -491,7 +478,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records`, {
                 method: "DELETE",
                 headers
@@ -522,7 +508,6 @@ class Filemaker {
         headers.set("X-Authentication-Options", JSON.stringify({username: this.username, password: this.password}));
 
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
             const response = await fetch(`${this.url}/databases/${this.database}/layouts/${this.layout}/records`, {
                 method: "POST",
                 headers,
@@ -552,7 +537,7 @@ class Filemaker {
         if (username === "" || password === "" || database === "") throw new Error("Username, password, and database are required fields");
         const body = JSON.stringify({username: username, password: password, database: database});
         try {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
             const response = await fetch(`${this.url}/credentials`, {method: "POST", body: body, headers: {"Content-Type": "application/json", "accept": "application/json"}});
             if (response.ok) {
                 this.username = username;
@@ -605,5 +590,3 @@ class Filemaker {
     }
 
 }
-
-module.exports = {Filemaker, FilemakerRecord};
