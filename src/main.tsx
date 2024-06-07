@@ -8,7 +8,6 @@ import {Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@nextui-org/navbar
 
 import "./assets/scss/index.scss"
 import Home from "./assets/pages/Home.tsx";
-import About from "./assets/pages/About.tsx";
 import ThemeSwitcher, {applyTheme} from "./assets/components/ThemeSwitcher.tsx";
 
 applyTheme()
@@ -30,7 +29,6 @@ function PageContent() {
             <Routes>
                 <Route>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/about" element={<About/>}/>
                 </Route>
             </Routes>
         </NextUIProvider>
