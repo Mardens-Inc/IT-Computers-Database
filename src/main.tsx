@@ -2,7 +2,7 @@ import React from 'react'
 import {BrowserRouter, Route, Routes, useNavigate} from 'react-router-dom';
 import ReactDOM from 'react-dom/client'
 import $ from 'jquery'
-import {Link, NavbarMenu, NavbarMenuItem, NavbarMenuToggle, NextUIProvider} from "@nextui-org/react";
+import {NextUIProvider} from "@nextui-org/react";
 
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@nextui-org/navbar";
 
@@ -39,44 +39,19 @@ function PageContent() {
 
 
 function Nav() {
-    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-    const pages = {
-        "Home": "/",
-        "About": "/about",
-    };
-    const menuItems = Object.keys(pages).map((item, index) => {
-        const url = Object.values(pages)[index];
-        const isCurrentPage = window.location.pathname === url;
-        return (
-            <NavbarMenuItem>
-                <Link href={url} color={isCurrentPage ? "primary" : "foreground"} aria-current="page" size="lg" className="w-full">
-                    {item}
-                </Link>
-            </NavbarMenuItem>
-        );
-    });
-
-
     return (
-        <Navbar onMenuOpenChange={setIsMenuOpen}>
+        <Navbar>
             <NavbarContent>
-                <NavbarMenuToggle aria-label={isMenuOpen ? "Close menu" : "Open menu"} className="sm:hidden"/>
                 <NavbarBrand>
-                    <p className="font-bold text-inherit">Example</p>
+                    <p className="font-bold text-inherit">IT Computers Database</p>
                 </NavbarBrand>
             </NavbarContent>
 
-            <NavbarContent className="hidden sm:flex gap-4" justify="center">
-                {menuItems}
-            </NavbarContent>
             <NavbarContent justify="end">
                 <NavbarItem>
                     <ThemeSwitcher/>
                 </NavbarItem>
             </NavbarContent>
-
-            <NavbarMenu>
-                {menuItems}
-            </NavbarMenu>
-        </Navbar>)
+        </Navbar>
+    );
 }
