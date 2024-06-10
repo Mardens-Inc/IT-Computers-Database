@@ -1,5 +1,7 @@
 <?php
 
+header("Access-Control-Allow-Origin: *");
+
 use ITComputersDatabase\ITComputers;
 use Slim\Factory\AppFactory;
 
@@ -17,13 +19,17 @@ $app->get('/', function ($request, $response, $args) use ($computers) {
     try {
         $params = $request->getQueryParams();
         if (isset($params["limit"])) {
-            $offset = $params["offset"] ?? 0;
-            $response->getBody()->write(json_encode($computers->range($params["limit"], $offset)));
+            $page = $params["page"] ?? 0;
+            $sort = $params["sort"] ?? "id";
+            $ascending = $params["ascending"] ?? true;
+            $query = $params["query"] ?? "";
+            $response->getBody()->write(json_encode(@$computers->search($query, $params["limit"], $page, $sort, $ascending)));
         } else
             $response->getBody()->write(json_encode($computers->all()));
         return $response->withHeader('Content-Type', 'application/json');
     } catch (Exception $e) {
-        return $response->withStatus(500)->withHeader("Content-Type", "application/json")->withJson(["message" => $e->getMessage()]);
+        $response->getBody()->write(json_encode(["message" => $e->getMessage()]));
+        return $response->withStatus(500)->withHeader("Content-Type", "application/json");
     }
 });
 
