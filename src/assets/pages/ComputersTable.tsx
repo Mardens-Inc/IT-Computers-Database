@@ -77,7 +77,7 @@ export function ComputersTable({search = ""}) {
                     <Spinner ref={loaderRef} color="primary" size={"lg"}/>
                 </div>) : null}
                    classNames={{
-                       base: "max-h-[90vh] overflow-scroll m-auto w-[95vw]",
+                       base: "max-h-[90vh] overflow-auto m-auto w-[95vw]",
                        table: "min-h-[32px]",
                    }}>
                 <TableHeader>
