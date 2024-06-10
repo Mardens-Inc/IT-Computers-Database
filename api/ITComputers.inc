@@ -56,15 +56,22 @@ class ITComputers
     }
 
     /**
-     * Retrieve a range of IT computers.
+     * Retrieve a range of IT computers based on limit, offset, sort and order criteria.
      *
      * @param int $limit The maximum number of results to return.
-     * @param int $offset The offset for pagination.
-     * @return array The list of IT computers within the specified range.
+     * @param int $page The page for pagination.
+     * @param string $sort The column to sort by.
+     * @param bool $ascending True if sorting in ascending order, false for descending order.
+     * @return array The range of IT computers matching the criteria.
      */
-    public function range(int $limit, int $offset): array
+    public function range(int $limit, int $page, string $sort, bool $ascending): array
     {
-        $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` LIMIT ? OFFSET ?");
+        $ascending = $ascending ? "ASC" : "DESC";
+        $offset = max($limit * $page, 0);
+        $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` ORDER BY `$sort` $ascending LIMIT ? OFFSET ?");
+        if (!$stmt) {
+            return ["error" => $this->conn->error, "code" => $this->conn->errno, "message" => "Failed to prepare statement", "stmt" => $stmt];
+        }
         $stmt->bind_param("ii", $limit, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -74,7 +81,14 @@ class ITComputers
             $row["specs"] = json_decode($row["specs"], true);
             $rows[] = $row;
         }
-        return $rows;
+        $total = $this->count();
+        return ["data" => $rows, "total" => $total, "count" => count($rows), "limit" => $limit, "offset" => $offset, "page" => $page, "last_page" => floor($this->count() / $limit)];
+    }
+
+    public function count(string $query = ""): int
+    {
+        $result = $this->conn->query("SELECT COUNT(*) FROM `itcomputers` WHERE CONCAT(asset_number, make, operating_system, location, primary_user) LIKE '%$query%'");
+        return $result->fetch_row()[0];
     }
 
     /**
@@ -82,17 +96,18 @@ class ITComputers
      *
      * @param string $query The search query.
      * @param int $limit The maximum number of results to return.
-     * @param int $offset The offset for pagination.
+     * @param int $page The page for pagination.
      * @param string $sort The column to sort by.
      * @param bool $ascending True if sorting in ascending order, false for descending order.
      * @return array The list of IT computers matching the search criteria.
      */
-    public function search(string $query, int $limit, int $offset, string $sort, bool $ascending): array
+    public function search(string $query, int $limit, int $page, string $sort, bool $ascending): array
     {
         $query = "%" . $query . "%";
         $ascending = $ascending ? "ASC" : "DESC";
-        $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` WHERE CONCAT(asset_number, make, operating_system, location, primary_user) LIKE ? ORDER BY ? $ascending LIMIT ? OFFSET ?");
-        $stmt->bind_param("ssii", $query, $sort, $limit, $offset);
+        $offset = max($limit * $page, 0);
+        $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` WHERE CONCAT(asset_number, make, operating_system, location, primary_user) LIKE ? ORDER BY `$sort` $ascending LIMIT ? OFFSET ?");
+        $stmt->bind_param("sii", $query, $limit, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = [];
@@ -101,7 +116,8 @@ class ITComputers
             $row["specs"] = json_decode($row["specs"], true);
             $rows[] = $row;
         }
-        return $rows;
+        $total = $this->count($query);
+        return ["data" => $rows, "total" => $total, "count" => count($rows), "limit" => $limit, "offset" => $offset, "page" => $page, "last_page" => floor($total / $limit)];
     }
 
     /**
@@ -222,7 +238,10 @@ class ITComputers
             while ($row = $result->fetch_assoc()) {
                 $rows[] = $row[$column];
             }
-            return $rows;
+            // remove empty arrays
+            return array_filter($rows, function ($value) {
+                return !empty($value);
+            });
         } catch (\Exception $e) {
             return ["error" => $e->getMessage()];
         }
