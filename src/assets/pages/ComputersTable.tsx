@@ -20,12 +20,15 @@ export function ComputersTable({search = ""}) {
         }
         const response = await fetch(url, {signal});
         const json = await response.json();
+
         setHasMore(json.page < json.last_page);
+
         // map the type to a string
         json.data.forEach((item: Computer) => {
             item.type = GetComputerType(item.type as number);
             item.available = item.available === 0;
         });
+        setIsLoading(false);
         return {
             items: json.data as Computer[],
             cursor: json.page + 1
@@ -40,7 +43,7 @@ export function ComputersTable({search = ""}) {
         async sort({sortDescriptor, signal, cursor}) {
             const ascending = sortDescriptor.direction === 'ascending';
             const column = sortDescriptor.column?.toString() ?? "id";
-            const url = `http://computers.local/api/?limit=30&page=${cursor ?? 0}${ascending ? "&ascending" : ""}&sort=${column}&query=${search}`;
+            const url = `http://computers.local/api/?limit=10&page=${cursor ?? 0}${ascending ? "&ascending" : ""}&sort=${column}&query=${search}`;
             return fetchAndProcessData(url, signal, cursor);
         }
     });
@@ -97,6 +100,7 @@ export function ComputersTable({search = ""}) {
                     emptyContent={"No computers found."}
                     isLoading={isLoading}
                     items={list.items}
+                    loadingContent={<Spinner ref={loaderRef} color="primary" size={"lg"}/>}
                 >
                     {(item: Computer) => (
                         <TableRow key={item.id} aria-label={`Row for asset number ${item.asset_number}`}>
