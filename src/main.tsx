@@ -1,15 +1,14 @@
 import React from 'react'
 import {BrowserRouter, Route, Routes, useNavigate} from 'react-router-dom';
 import ReactDOM from 'react-dom/client'
-import $ from 'jquery'
-import {Button, Input, NextUIProvider, Tooltip} from "@nextui-org/react";
-
+import {Input, NextUIProvider} from "@nextui-org/react";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@nextui-org/navbar";
-
-import "./assets/scss/index.scss"
 import ThemeSwitcher, {applyTheme} from "./assets/components/ThemeSwitcher.tsx";
 import {SearchIcon} from "./assets/components/Icons.tsx";
 import {ComputersTable} from "./assets/pages/ComputersTable.tsx";
+import $ from 'jquery'
+
+import "./assets/scss/index.scss"
 
 applyTheme()
 
