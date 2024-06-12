@@ -1,7 +1,7 @@
-import {Computer} from "../pages/ComputersTable.tsx";
 import {Autocomplete, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Spinner, Switch, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Textarea} from "@nextui-org/react";
 import {uniqueFields} from "../ts/unique-fields.ts";
 import {useState} from "react";
+import {Computer} from "../ts/ComputerManager.ts";
 
 interface ComputerPopupProps {
     computer: Computer | null;
@@ -26,6 +26,8 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
     const edit = mode === EditMode.Edit || mode === EditMode.Add;
 
     const specKeys = ["RAM", "CPU", "Storage", "GPU", "Display", "Benchmark", "IP Address", "Department", "Login", "Password", "TV ID"];
+    const newComputer: Computer = {...computer} as Computer;
+    if (newComputer.specs == null) newComputer.specs = {}
 
     return (
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} className="min-w-[500px] w-[25vw] max-w-[800px]">
@@ -59,13 +61,29 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                         </TableRow>
                                     )}
                                     <TableRow>
-                                        <TableCell>Asset Number <span className={"text-danger"}>*</span> </TableCell>
-                                        <TableCell>{edit ? (<Input aria-label={"The asset number of the device"} value={computer?.asset_number} placeholder={"This field is required..."}/>) : computer?.asset_number}</TableCell>
+                                        <TableCell>Asset Number <span className={"text-danger"}>*</span></TableCell>
+                                        <TableCell>{edit ? (<Input aria-label={"The asset number of the device"} value={computer?.asset_number} placeholder={"This field is required..."} isRequired errorMessage={"This field is required"} onValueChange={(e) => {
+                                            newComputer.asset_number = e;
+                                            console.log(newComputer)
+                                        }}/>) : computer?.asset_number}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Type <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Select placeholder={mode === EditMode.Add ? "This field is required..." : computer?.type.toString()} aria-label={"The type of device that this is."}>
+                                            {edit ? (<Select placeholder={mode === EditMode.Add ? "This field is required..." : computer?.type.toString()} aria-label={"The type of device that this is."} onSelectionChange={(keys) => {
+                                                const items = [...keys] as string[]
+                                                if (items.length > 0) {
+                                                    try {
+                                                        newComputer.type = parseInt(items[0]);
+                                                        console.log(newComputer)
+                                                    } catch (e) {
+                                                        newComputer.type = 0;
+                                                        console.error(e)
+                                                    }
+                                                } else {
+                                                    newComputer.type = 0;
+                                                }
+                                            }}>
                                                 <SelectItem key="1">Laptop</SelectItem>
                                                 <SelectItem key="2">Desktop</SelectItem>
                                                 <SelectItem key="3">Printer</SelectItem>
@@ -81,7 +99,12 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Operating System <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete aria-label={"Computers operating system"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.operating_system.toString()}>
+                                            {edit ? (<Autocomplete aria-label={"Computers operating system"} menuTrigger={"input"} allowsCustomValue={true} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.operating_system.toString()}
+                                                                   onInputChange={(key) => {
+                                                                       newComputer.operating_system = key;
+                                                                       console.log(newComputer)
+                                                                   }}
+                                            >
                                                 {uniqueFields.operating_system.map((os) => <SelectItem key={os} aria-label={`Operating System: ${os}`}>{os}</SelectItem>)}
                                             </Autocomplete>) : computer?.operating_system.toString()}
                                         </TableCell>
@@ -89,7 +112,12 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Make <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete aria-label={"Computer make or brand"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.make.toString()}>
+                                            {edit ? (<Autocomplete aria-label={"Computer make or brand"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.make.toString()}
+                                                                   onInputChange={(key) => {
+                                                                       newComputer.make = key;
+                                                                       console.log(newComputer)
+                                                                   }}
+                                            >
                                                 {uniqueFields.make.map((make) => <SelectItem key={make} aria-label={`Make: ${make}`}>{make}</SelectItem>)}
                                             </Autocomplete>) : computer?.make.toString()}
                                         </TableCell>
@@ -97,7 +125,12 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Model</TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete aria-label={"Computer model or serial number"} placeholder={mode === EditMode.Add ? "This field is optional..." : computer?.model.toString()}>
+                                            {edit ? (<Autocomplete aria-label={"Computer model or serial number"} placeholder={mode === EditMode.Add ? "This field is optional..." : computer?.model.toString()}
+                                                                   onInputChange={(key) => {
+                                                                       newComputer.model = key;
+                                                                       console.log(newComputer)
+                                                                   }}
+                                            >
                                                 {uniqueFields.model.map((model) => <SelectItem key={model} aria-label={`Model: ${model}`}>{model}</SelectItem>)}
                                             </Autocomplete>) : computer?.model.toString()}
                                         </TableCell>
@@ -105,7 +138,12 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Location <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete aria-label={"The location of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.location.toString()}>
+                                            {edit ? (<Autocomplete aria-label={"The location of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.location.toString()}
+                                                                   onInputChange={(key) => {
+                                                                       newComputer.location = key;
+                                                                       console.log(newComputer)
+                                                                   }}
+                                            >
                                                 {uniqueFields.location.map((location) => <SelectItem key={location} aria-label={`Model: ${location}`}>{location}</SelectItem>)}
                                             </Autocomplete>) : computer?.location.toString()}
                                         </TableCell>
@@ -113,7 +151,10 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Primary User <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete aria-label={"The primary user of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.primary_user.toString()}>
+                                            {edit ? (<Autocomplete aria-label={"The primary user of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : computer?.primary_user.toString()} onInputChange={(key) => {
+                                                newComputer.primary_user = key;
+                                                console.log(newComputer)
+                                            }}>
                                                 {uniqueFields.primary_user.map((user) => <SelectItem key={user} aria-label={`Model: ${user}`}>{user}</SelectItem>)}
                                             </Autocomplete>) : computer?.primary_user.toString()}
                                         </TableCell>
@@ -122,7 +163,15 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                         return (
                                             <TableRow key={key}>
                                                 <TableCell className="capitalize">{key.replace(/_/g, " ")}</TableCell>
-                                                <TableCell>{edit ? (<Input aria-label={`The ${key} of the device`} placeholder={key} value={computer.specs[key]}/>) : computer.specs[key]}</TableCell>
+                                                <TableCell>{edit ? (<Input aria-label={`The ${key} of the device`} placeholder={key} value={computer.specs[key]} onValueChange={
+                                                    (value) => {
+                                                        value = value.trim();
+                                                        if (value === "")
+                                                            delete newComputer.specs[key]; // Removes the key if the value is empty.
+                                                        else
+                                                            newComputer.specs[key] = value;
+                                                        console.log(newComputer)
+                                                    }}/>) : computer.specs[key]}</TableCell>
                                             </TableRow>
                                         );
 
@@ -132,7 +181,15 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                             <TableRow key={key}>
                                                 <TableCell>{key}</TableCell>
                                                 <TableCell>
-                                                    <Input aria-label={`The ${key} of the device`} placeholder={"This field is optional..."}/>
+                                                    <Input aria-label={`The ${key} of the device`} placeholder={"This field is optional..."} onValueChange={
+                                                        (value) => {
+                                                            value = value.trim();
+                                                            if (value === "")
+                                                                delete newComputer.specs[key]; // Removes the key if the value is empty.
+                                                            else
+                                                                newComputer.specs[key] = value;
+                                                            console.log(newComputer)
+                                                        }}/>
                                                 </TableCell>
                                             </TableRow>
                                         );
@@ -140,13 +197,16 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                     <TableRow>
                                         <TableCell>Notes</TableCell>
                                         <TableCell>
-                                            <Textarea aria-label={"Any additional notes about the device"} placeholder={"Any notes that might be important"} value={computer?.notes}/>
+                                            <Textarea aria-label={"Any additional notes about the device"} placeholder={"Any notes that might be important"} value={computer?.notes} onValueChange={value => {
+                                                newComputer.notes = value.trim();
+                                                console.log(newComputer)
+                                            }}/>
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Availability</TableCell>
                                         <TableCell className="flex justify-end">
-                                            <Switch isDisabled={!edit} value={computer?.available.toString()}/>
+                                            <Switch isDisabled={!edit} value={computer?.available.toString()} onValueChange={value => newComputer.available = value}/>
                                         </TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -158,10 +218,12 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
                                 <Button color="danger" variant="light" onPress={onClose} isDisabled={isLoading}>
                                     Cancel
                                 </Button>
-                                <Button color="primary" onPress={() => {
+                                <Button type={"submit"} color="primary" onPress={async () => {
                                     if (isLoading) return;
                                     setIsLoading(true);
-                                    setTimeout(() => setIsLoading(false), 5000);
+                                    await saveComputer(newComputer);
+                                    setIsLoading(false);
+                                    // setTimeout(onClose, 1000);
                                 }}>
                                     {isLoading ? (<Spinner color={"white"} size={"sm"}/>) : "Save"}
                                 </Button>
@@ -179,4 +241,9 @@ export default function ComputerPopup({computer, mode, disclosure}: ComputerPopu
             </ModalContent>
         </Modal>
     );
+}
+
+
+async function saveComputer(computer: Computer) {
+    console.log(`New Computer ${JSON.stringify(computer)}`);
 }
