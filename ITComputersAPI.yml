@@ -1,0 +1,362 @@
+openapi: 3.0.0
+info:
+  title: ITComputers API
+  description: >-
+    This API provides access to the `computers` table in the database. It
+    supports operations to get a specific computer, get the count of computers,
+    search for computers, and filter computers.
+  version: 1.0.0
+servers:
+  - url: https://computers.mardens.com/api
+    description: Production server
+    variables:
+      environment:
+        default: production
+        description: The environment to use
+        enum:
+          - production
+          - staging
+          - development
+tags:
+  - name: /
+  - name: /unique
+  - name: /unique > {column}
+  - name: '{id}'
+paths:
+  /:
+    get:
+      tags:
+        - /
+      summary: Get a list of devices
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: limit
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: page
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: ascending
+          in: query
+          schema:
+            type: string
+          example: <boolean>
+        - name: query
+          in: query
+          schema:
+            type: string
+          example: <string>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - /
+      summary: Add multiple new computers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                - asset_number: '51965'
+                  make: hp
+                  model: ''
+                  location: 50 ind
+                  primary_user: pricing 50 ind
+                  operating_system: windows 10 home
+                  condition: 5
+                  type: 1
+                  available: 0
+                  specs: {}
+                  notes: Compatible with Windows 11 - not loaded yet
+                - asset_number: '51970'
+                  make: lenovo
+                  model: ''
+                  location: 50 ind
+                  primary_user: pricing user
+                  operating_system: windows 11 home
+                  condition: 5
+                  type: 1
+                  available: 0
+                  specs: {}
+                  notes: ''
+                - asset_number: '51971'
+                  make: lenovo
+                  model: ''
+                  location: 50 ind
+                  primary_user: pricing user
+                  operating_system: windows 11 home
+                  condition: 5
+                  type: 1
+                  available: 0
+                  specs: {}
+                  notes: ''
+                - asset_number: '51548'
+                  make: ''
+                  model: ''
+                  location: 50 industrial
+                  primary_user: ''
+                  operating_system: windows 10 pro
+                  condition: 0
+                  type: 0
+                  available: 0
+                  specs: {}
+                  notes: Bld 134
+                - asset_number: '51562'
+                  make: ''
+                  model: ''
+                  location: 50 industrial
+                  primary_user: ''
+                  operating_system: windows 10 pro
+                  condition: 0
+                  type: 2
+                  available: 0
+                  specs: {}
+                  notes: ''
+                - asset_number: '51568'
+                  make: ''
+                  model: ''
+                  location: 50 industrial
+                  primary_user: vpricer
+                  operating_system: windows 10 home
+                  condition: 0
+                  type: 1
+                  available: 0
+                  specs:
+                    ip_address: wifi
+                  notes: ''
+                - asset_number: '51936'
+                  make: ''
+                  model: ''
+                  location: 50 industrial
+                  primary_user: victoria wiswell
+                  operating_system: windows 10 home
+                  condition: 0
+                  type: 1
+                  available: 0
+                  specs: {}
+                  notes: ''
+                - asset_number: '60023'
+                  make: lenovo
+                  model: ''
+                  location: accounting
+                  primary_user: jessica grondin
+                  operating_system: windows 11 pro
+                  condition: 3
+                  type: 2
+                  available: 0
+                  specs:
+                    cpu_benchmark: '20075'
+                  notes: ''
+                - asset_number: '60024'
+                  make: lenovo
+                  model: ''
+                  location: accounting
+                  primary_user: jessica grondin
+                  operating_system: windows 11 pro
+                  condition: 3
+                  type: 2
+                  available: 0
+                  specs:
+                    cpu_benchmark: '20075'
+                  notes: ''
+                - asset_number: '51175'
+                  make: dell
+                  model: ''
+                  location: biddeford
+                  primary_user: lp
+                  operating_system: windows 10 pro
+                  condition: 2
+                  type: 2
+                  available: 0
+                  specs:
+                    ip_address: 192.168.231.70
+                  notes: 1/9/2020
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /unique/{column}:
+    get:
+      tags:
+        - /unique > {column}
+      summary: Get Unique Values
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: column
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /{id}:
+    get:
+      tags:
+        - '{id}'
+      summary: Get a computer by id
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          example: nxoKxq
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - '{id}'
+      summary: Update a computer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: {}
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: <string>
+    delete:
+      tags:
+        - '{id}'
+      summary: Remove a computer
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example: {}
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                message: <string>

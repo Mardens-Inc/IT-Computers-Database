@@ -1,0 +1,491 @@
+{
+	"info": {
+		"_postman_id": "993df8e3-ba37-4570-a1c2-c5699480a65d",
+		"name": "ITComputers API",
+		"description": "This API provides access to the `computers` table in the database. It supports operations to get a specific computer, get the count of computers, search for computers, and filter computers.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16833182"
+	},
+	"item": [
+		{
+			"name": "/",
+			"item": [
+				{
+					"name": "Get a list of devices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/?limit=<integer>&page=<integer>&sort=<string>&ascending=<boolean>&query=<string>",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "<integer>"
+								},
+								{
+									"key": "page",
+									"value": "<integer>"
+								},
+								{
+									"key": "sort",
+									"value": "<string>"
+								},
+								{
+									"key": "ascending",
+									"value": "<boolean>"
+								},
+								{
+									"key": "query",
+									"value": "<string>"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add a new computer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"asset_number\": \"51175\",\r\n    \"make\": \"dell\",\r\n    \"model\": \"\",\r\n    \"location\": \"biddeford\",\r\n    \"primary_user\": \"lp\",\r\n    \"operating_system\": \"windows 10 pro\",\r\n    \"condition\": 2,\r\n    \"type\": 2,\r\n    \"available\": 0,\r\n    \"specs\": {\r\n        \"ip_address\": \"192.168.231.70\"\r\n    },\r\n    \"notes\": \"1/9/2020\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add multiple new computers",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n  {\r\n    \"asset_number\": \"51965\",\r\n    \"make\": \"hp\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 ind\",\r\n    \"primary_user\": \"pricing 50 ind\",\r\n    \"operating_system\": \"windows 10 home\",\r\n    \"condition\": 5,\r\n    \"type\": 1,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"Compatible with Windows 11 - not loaded yet\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51970\",\r\n    \"make\": \"lenovo\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 ind\",\r\n    \"primary_user\": \"pricing user\",\r\n    \"operating_system\": \"windows 11 home\",\r\n    \"condition\": 5,\r\n    \"type\": 1,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51971\",\r\n    \"make\": \"lenovo\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 ind\",\r\n    \"primary_user\": \"pricing user\",\r\n    \"operating_system\": \"windows 11 home\",\r\n    \"condition\": 5,\r\n    \"type\": 1,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51548\",\r\n    \"make\": \"\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 industrial\",\r\n    \"primary_user\": \"\",\r\n    \"operating_system\": \"windows 10 pro\",\r\n    \"condition\": 0,\r\n    \"type\": 0,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"Bld 134\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51562\",\r\n    \"make\": \"\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 industrial\",\r\n    \"primary_user\": \"\",\r\n    \"operating_system\": \"windows 10 pro\",\r\n    \"condition\": 0,\r\n    \"type\": 2,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51568\",\r\n    \"make\": \"\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 industrial\",\r\n    \"primary_user\": \"vpricer\",\r\n    \"operating_system\": \"windows 10 home\",\r\n    \"condition\": 0,\r\n    \"type\": 1,\r\n    \"available\": 0,\r\n    \"specs\": {\r\n      \"ip_address\": \"wifi\"\r\n    },\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51936\",\r\n    \"make\": \"\",\r\n    \"model\": \"\",\r\n    \"location\": \"50 industrial\",\r\n    \"primary_user\": \"victoria wiswell\",\r\n    \"operating_system\": \"windows 10 home\",\r\n    \"condition\": 0,\r\n    \"type\": 1,\r\n    \"available\": 0,\r\n    \"specs\": {},\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"60023\",\r\n    \"make\": \"lenovo\",\r\n    \"model\": \"\",\r\n    \"location\": \"accounting\",\r\n    \"primary_user\": \"jessica grondin\",\r\n    \"operating_system\": \"windows 11 pro\",\r\n    \"condition\": 3,\r\n    \"type\": 2,\r\n    \"available\": 0,\r\n    \"specs\": {\r\n      \"cpu_benchmark\": \"20075\"\r\n    },\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"60024\",\r\n    \"make\": \"lenovo\",\r\n    \"model\": \"\",\r\n    \"location\": \"accounting\",\r\n    \"primary_user\": \"jessica grondin\",\r\n    \"operating_system\": \"windows 11 pro\",\r\n    \"condition\": 3,\r\n    \"type\": 2,\r\n    \"available\": 0,\r\n    \"specs\": {\r\n      \"cpu_benchmark\": \"20075\"\r\n    },\r\n    \"notes\": \"\"\r\n  },\r\n  {\r\n    \"asset_number\": \"51175\",\r\n    \"make\": \"dell\",\r\n    \"model\": \"\",\r\n    \"location\": \"biddeford\",\r\n    \"primary_user\": \"lp\",\r\n    \"operating_system\": \"windows 10 pro\",\r\n    \"condition\": 2,\r\n    \"type\": 2,\r\n    \"available\": 0,\r\n    \"specs\": {\r\n      \"ip_address\": \"192.168.231.70\"\r\n    },\r\n    \"notes\": \"1/9/2020\"\r\n  }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "/unique",
+			"item": [
+				{
+					"name": "{column}",
+					"item": [
+						{
+							"name": "Get Unique Values",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{url}}/unique/:column",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"unique",
+										":column"
+									],
+									"variable": [
+										{
+											"key": "column",
+											"value": "<string>"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "{id}",
+			"item": [
+				{
+					"name": "Get a computer by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/:id",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "nxoKxq"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update a computer",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/:id",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "<integer>",
+									"description": "(Required) "
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Computer successfully updated",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{}"
+						},
+						{
+							"name": "Server Error",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{}",
+									"options": {
+										"raw": {
+											"headerFamily": "json",
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove a computer",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{url}}/:id",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "<integer>",
+									"description": "(Required) "
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Computer successfully deleted",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{}"
+						},
+						{
+							"name": "Server Error",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id"
+										}
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://computers.mardens.com/api",
+			"type": "string"
+		}
+	]
+}
