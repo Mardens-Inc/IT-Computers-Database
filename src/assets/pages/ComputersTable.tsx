@@ -1,9 +1,11 @@
 import {Button, getKeyValue, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure} from "@nextui-org/react";
 import React, {useCallback, useEffect, useState} from "react";
-import {AsyncListData, useAsyncList} from "@react-stately/data";
+import {AsyncListData, AsyncListStateUpdate, useAsyncList} from "@react-stately/data";
 import {useInfiniteScroll} from "@nextui-org/use-infinite-scroll";
 import {DeleteIcon, EditIcon, EyeIcon} from "../components/Icons.tsx";
 import ComputerPopup, {EditMode} from "../components/ComputerPopup.tsx";
+import {Confirm} from "../components/AlertComponent.tsx";
+import {Computer, ComputerSearchOptions, GetComputers, GetComputerType} from "../ts/ComputerManager.ts";
 
 export function ComputersTable({search = ""}) {
 
@@ -14,12 +16,18 @@ export function ComputersTable({search = ""}) {
         list.reload();
     }, [search]);
 
-    const fetchAndProcessData = async (url: string, signal: AbortSignal, cursor: string | number | undefined) => {
+    const fetchAndProcessData = async (options: ComputerSearchOptions, signal: AbortSignal, cursor: string | number | undefined): Promise<AsyncListStateUpdate<Computer, string>> => {
+        // setIsLoading(true);
         if (cursor) {
             setIsLoading(false);
         }
-        const response = await fetch(url, {signal});
-        const json = await response.json();
+
+        const json = await GetComputers(options, signal);
+        if (json == null)
+            return {
+                items: [],
+                cursor: '0'
+            };
 
         setHasMore(json.page < json.last_page);
 
@@ -30,35 +38,47 @@ export function ComputersTable({search = ""}) {
         });
         setIsLoading(false);
         return {
-            items: json.data as Computer[],
-            cursor: json.page + 1
+            items: json.data,
+            cursor: (json.page + 1).toString()
         };
     };
 
     const list: AsyncListData<Computer> = useAsyncList({
         async load({signal, cursor}) {
-            const url = `http://computers.local/api/?limit=30&page=${cursor ?? 0}&query=${search}`;
-            return fetchAndProcessData(url, signal, cursor);
+            console.log(`Cursor: ${cursor}`)
+            let page = parseInt(cursor ?? '0');
+            page = isNaN(page) ? 0 : page;
+            return fetchAndProcessData({limit: 30, page, query: search, sort: 'id', ascending: false}, signal, cursor);
         },
         async sort({sortDescriptor, signal, cursor}) {
             const ascending = sortDescriptor.direction === 'ascending';
             const column = sortDescriptor.column?.toString() ?? "id";
-            const url = `http://computers.local/api/?limit=10&page=${cursor ?? 0}${ascending ? "&ascending" : ""}&sort=${column}&query=${search}`;
-            return fetchAndProcessData(url, signal, cursor);
+            let page = parseInt(cursor ?? '0');
+            page = isNaN(page) ? 0 : page;
+
+            return fetchAndProcessData({limit: 10, page, query: search, sort: column, ascending: ascending}, signal, cursor);
         }
     });
 
     const [loaderRef, scrollerRef] = useInfiniteScroll({hasMore, onLoadMore: list.loadMore});
 
     const [loadedComputerPopup, setLoadedComputerPopup] = useState<{ computer: Computer | null, mode: EditMode }>({computer: null, mode: EditMode.Add});
-    const disclosure = useDisclosure();
-    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={disclosure}/>)
+    const [deletingComputerPopup, setIsDeletingPopup] = useState<Computer | null>(null)
+    const editViewDisclosure = useDisclosure();
+    const deleteDisclosure = useDisclosure();
+    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={editViewDisclosure}/>)
 
     useEffect(() => {
-        if (loadedComputerPopup && disclosure.isOpen && loadedComputerPopup.computer) {
-            disclosure.onOpen();
+        if (loadedComputerPopup && editViewDisclosure.isOpen && loadedComputerPopup.computer) {
+            editViewDisclosure.onOpen();
         }
-    }, [loadedComputerPopup]);
+    }, [editViewDisclosure, loadedComputerPopup]);
+
+    useEffect(() => {
+        if (deletingComputerPopup) {
+            deleteDisclosure.onOpen();
+        }
+    }, [deleteDisclosure, deletingComputerPopup]);
 
     // Create a callback for opening the modal with a computer object
     const handleModalOpen = useCallback((computer: Computer | null, mode: EditMode) => {
@@ -69,18 +89,32 @@ export function ComputersTable({search = ""}) {
         });
 
         // Open the modal
-        disclosure.onOpen();
-    }, [disclosure]);
+        editViewDisclosure.onOpen();
+    }, [editViewDisclosure]);
+
+    const handleDeleteComponentPopup = useCallback((computer: Computer | null) => {
+        // Set the selected computer
+        setIsDeletingPopup(computer);
+        // Open the modal
+        deleteDisclosure.onOpen();
+    }, [deleteDisclosure]);
+
+
+    const confirmDeleteModal = (<Confirm confirmButtonText={"DELETE!"} onClose={(value) => {
+        if (value) console.log('delete');
+    }} message={"Are you sure you want to delete this device, this cannot be undone"} type={"warning"} closeButtonText={"Keep"} disclosure={deleteDisclosure}/>)
+
 
     return (
         <>
+            {confirmDeleteModal}
             {modal}
             <Table isStriped isHeaderSticky removeWrapper baseRef={scrollerRef} onSortChange={list.sort} sortDescriptor={list.sortDescriptor} bottomContent={hasMore ? (
                 <div className="flex w-full justify-center">
                     <Spinner ref={loaderRef} color="primary" size={"lg"}/>
                 </div>) : null}
                    classNames={{
-                       base: "max-h-[90vh] overflow-auto m-auto w-[95vw]",
+                       base: "max-h-[90vh] overflow-auto m-auto w-[95vw] min-h-[64px]",
                        table: "min-h-[32px]",
                    }}>
                 <TableHeader>
@@ -106,7 +140,9 @@ export function ComputersTable({search = ""}) {
                         <TableRow key={item.id} aria-label={`Row for asset number ${item.asset_number}`}>
                             {(columnKey) => columnKey === "actions" ? (<TableCell><ActionsRow
                                 onView={() => handleModalOpen(item, EditMode.View)}
-                                onEdit={() => handleModalOpen(item, EditMode.Edit)}/></TableCell>) : (<TableCell>{getKeyValue(item, columnKey)}</TableCell>)}
+                                onEdit={() => handleModalOpen(item, EditMode.Edit)}
+                                onDelete={() => handleDeleteComponentPopup(item)}
+                            /></TableCell>) : (<TableCell>{getKeyValue(item, columnKey)}</TableCell>)}
                         </TableRow>
                     )}
                 </TableBody>
@@ -135,48 +171,4 @@ function ActionsRow({onView, onEdit, onDelete}: { onView?: () => void, onEdit?: 
             </Tooltip>
         </div>
     );
-}
-
-export type Computer = {
-    id: string,
-    asset_number: string,
-    make: string,
-    model: string,
-    condition: number,
-    location: string,
-    primary_user: string,
-    operating_system: string,
-    type: string | number,
-    available: boolean | number,
-    specs: any,
-    notes: string,
-    creation_date: Date,
-    last_update: Date
-};
-
-
-/**
- * Returns the computer type based on the given type code.
- * @param {number} type - The type code representing the computer type.
- * @return {string} - The computer type as a string.
- */
-export function GetComputerType(type: number): string {
-    switch (type) {
-        case 1:
-            return "Laptop";
-        case 2:
-            return "Desktop";
-        case 3:
-            return "Printer";
-        case 4:
-            return "Copier";
-        case 5:
-            return "Phone";
-        case 6:
-            return "Kiosk";
-        case 7:
-            return "Tablet";
-        default:
-            return "Unknown";
-    }
 }
