@@ -1,27 +1,28 @@
-import React from 'react'
-import {BrowserRouter, Route, Routes, useNavigate} from 'react-router-dom';
-import ReactDOM from 'react-dom/client'
+import React from "react";
+import {BrowserRouter, Route, Routes, useNavigate} from "react-router-dom";
+import ReactDOM from "react-dom/client";
 import {Input, NextUIProvider} from "@nextui-org/react";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem} from "@nextui-org/navbar";
 import ThemeSwitcher, {applyTheme} from "./assets/components/ThemeSwitcher.tsx";
 import {SearchIcon} from "./assets/components/Icons.tsx";
 import {ComputersTable} from "./assets/pages/ComputersTable.tsx";
-import $ from 'jquery'
+import $ from "jquery";
 
-import "./assets/scss/index.scss"
+import "./assets/scss/index.scss";
 
-applyTheme()
+applyTheme();
 
 ReactDOM.createRoot($("#root")[0]!).render(
     <React.StrictMode>
         <BrowserRouter>
             <PageContent/>
         </BrowserRouter>
-    </React.StrictMode>,
-)
+    </React.StrictMode>
+);
 
 
-function PageContent() {
+function PageContent()
+{
     const navigate = useNavigate();
     const [search, setSearch] = React.useState<string>("");
     return (
@@ -37,11 +38,13 @@ function PageContent() {
 }
 
 
-interface NavProps {
+interface NavProps
+{
     onSearch: (value: string) => void,
 }
 
-function Nav({onSearch}: NavProps) {
+function Nav({onSearch}: NavProps)
+{
     return (
         <Navbar className="max-w-full">
             <NavbarContent>
@@ -50,7 +53,8 @@ function Nav({onSearch}: NavProps) {
                 </NavbarBrand>
             </NavbarContent>
 
-            <Input placeholder="Type to search..." startContent={<SearchIcon size={16}/>} type="search" size="sm" classNames={{base: "max-w-full sm:max-w-[10rem h-10"}} onInput={(e) => {
+            <Input placeholder="Type to search..." startContent={<SearchIcon size={16}/>} type="search" size="sm" classNames={{base: "max-w-full sm:max-w-[10rem h-10"}} onInput={(e) =>
+            {
                 onSearch(e.currentTarget.value);
             }}/>
 
