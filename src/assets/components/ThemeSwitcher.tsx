@@ -1,12 +1,14 @@
 import {Switch} from "@nextui-org/react";
 import {SVGProps} from "react";
 import {JSX} from "react/jsx-runtime";
-import $ from "jquery"
+import $ from "jquery";
 
-export default function ThemeSwitcher() {
+export default function ThemeSwitcher()
+{
     return (
-        <Switch size="lg" startContent={<SunIcon/>} endContent={<MoonIcon/>} defaultSelected={getCurrentTheme() === Themes.light} onValueChange={(value) => {
-            applyTheme(value ? Themes.light : Themes.dark)
+        <Switch size="lg" startContent={<SunIcon/>} endContent={<MoonIcon/>} defaultSelected={getCurrentTheme() === Themes.light} onValueChange={(value) =>
+        {
+            applyTheme(value ? Themes.light : Themes.dark);
         }}/>
     );
 }
@@ -47,23 +49,27 @@ export const SunIcon = (props: JSX.IntrinsicAttributes & SVGProps<SVGSVGElement>
 );
 
 
-export enum Themes {
+export enum Themes
+{
     default,
     light,
     dark
 }
 
-export function applyTheme(theme: Themes = Themes.default) {
+export function applyTheme(theme: Themes = Themes.default)
+{
     const name: string = theme == Themes.light ? "light" : theme == Themes.dark ? "dark" : (localStorage.getItem("theme") ?? "light");
-    localStorage.setItem("theme", name)
-    $("html").removeClass("dark").removeClass("light").addClass(name)
-    $(window).trigger("themeChange", theme)
+    localStorage.setItem("theme", name);
+    $("html").removeClass("dark").removeClass("light").addClass(name);
+    $(window).trigger("themeChange", theme);
 }
 
-export function getCurrentTheme(): Themes {
-    switch (localStorage.getItem("theme")) {
+export function getCurrentTheme(): Themes
+{
+    switch (localStorage.getItem("theme"))
+    {
         case "dark":
-            return Themes.dark
+            return Themes.dark;
         case "light":
         default:
             return Themes.light;
