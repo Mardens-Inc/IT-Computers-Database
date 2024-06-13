@@ -7,81 +7,38 @@ import ComputerPopup, {EditMode} from "../components/ComputerPopup.tsx";
 import {Confirm} from "../components/AlertComponent.tsx";
 import {Computer, ComputerSearchOptions, GetComputers, GetComputerType} from "../ts/ComputerManager.ts";
 
-export function ComputersTable({search = ""}) {
-
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasMore, setHasMore] = useState(false);
-    // update the search query when the search prop changes
-    useEffect(() => {
-        list.reload();
-    }, [search]);
-
-    const fetchAndProcessData = async (options: ComputerSearchOptions, signal: AbortSignal, cursor: string | number | undefined): Promise<AsyncListStateUpdate<Computer, string>> => {
-        // setIsLoading(true);
-        if (cursor) {
-            setIsLoading(false);
-        }
-
-        const json = await GetComputers(options, signal);
-        if (json == null)
-            return {
-                items: [],
-                cursor: '0'
-            };
-
-        setHasMore(json.page < json.last_page);
-
-        // map the type to a string
-        json.data.forEach((item: Computer) => {
-            item.type = GetComputerType(item.type as number);
-            item.available = item.available === 0;
-        });
-        setIsLoading(false);
-        return {
-            items: json.data,
-            cursor: (json.page + 1).toString()
-        };
-    };
-
+export function ComputersTable({search = ""})
+{
     const list: AsyncListData<Computer> = useAsyncList({
-        async load({signal, cursor}) {
-            console.log(`Cursor: ${cursor}`)
-            let page = parseInt(cursor ?? '0');
+        async load({signal, cursor})
+        {
+            let page = parseInt(cursor ?? "0");
             page = isNaN(page) ? 0 : page;
-            return fetchAndProcessData({limit: 30, page, query: search, sort: 'id', ascending: false}, signal, cursor);
+            return fetchAndProcessData({limit: 30, page, query: search, sort: "id", ascending: false}, signal, cursor);
         },
-        async sort({sortDescriptor, signal, cursor}) {
-            const ascending = sortDescriptor.direction === 'ascending';
+        async sort({sortDescriptor, signal, cursor})
+        {
+            const ascending = sortDescriptor.direction === "ascending";
             const column = sortDescriptor.column?.toString() ?? "id";
-            let page = parseInt(cursor ?? '0');
+            let page = parseInt(cursor ?? "0");
             page = isNaN(page) ? 0 : page;
 
             return fetchAndProcessData({limit: 10, page, query: search, sort: column, ascending: ascending}, signal, cursor);
         }
     });
-
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasMore, setHasMore] = useState(false);
     const [loaderRef, scrollerRef] = useInfiniteScroll({hasMore, onLoadMore: list.loadMore});
-
     const [loadedComputerPopup, setLoadedComputerPopup] = useState<{ computer: Computer | null, mode: EditMode }>({computer: null, mode: EditMode.Add});
-    const [deletingComputerPopup, setIsDeletingPopup] = useState<Computer | null>(null)
+    const [deletingComputerPopup, setIsDeletingPopup] = useState<Computer | null>(null);
     const editViewDisclosure = useDisclosure();
     const deleteDisclosure = useDisclosure();
-    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={editViewDisclosure}/>)
+    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={editViewDisclosure}/>);
 
-    useEffect(() => {
-        if (loadedComputerPopup && editViewDisclosure.isOpen && loadedComputerPopup.computer) {
-            editViewDisclosure.onOpen();
-        }
-    }, [editViewDisclosure, loadedComputerPopup]);
-
-    useEffect(() => {
-        if (deletingComputerPopup) {
-            deleteDisclosure.onOpen();
-        }
-    }, [deleteDisclosure, deletingComputerPopup]);
 
     // Create a callback for opening the modal with a computer object
-    const handleModalOpen = useCallback((computer: Computer | null, mode: EditMode) => {
+    const handleModalOpen = useCallback((computer: Computer | null, mode: EditMode) =>
+    {
         // Set the selected computer
         setLoadedComputerPopup({
             computer: computer,
@@ -92,7 +49,8 @@ export function ComputersTable({search = ""}) {
         editViewDisclosure.onOpen();
     }, [editViewDisclosure]);
 
-    const handleDeleteComponentPopup = useCallback((computer: Computer | null) => {
+    const handleDeleteComponentPopup = useCallback((computer: Computer | null) =>
+    {
         // Set the selected computer
         setIsDeletingPopup(computer);
         // Open the modal
@@ -100,9 +58,71 @@ export function ComputersTable({search = ""}) {
     }, [deleteDisclosure]);
 
 
-    const confirmDeleteModal = (<Confirm confirmButtonText={"DELETE!"} onClose={(value) => {
-        if (value) console.log('delete');
-    }} message={"Are you sure you want to delete this device, this cannot be undone"} type={"warning"} closeButtonText={"Keep"} disclosure={deleteDisclosure}/>)
+    const confirmDeleteModal = (<Confirm confirmButtonText={"DELETE!"} onClose={async (value) =>
+    {
+        if (value)
+        {
+            console.log(`delete ${deletingComputerPopup?.id}`);
+            // await DeleteComputer(deletingComputerPopup?.id as string);
+            list.reload();
+        }
+        setIsDeletingPopup(null);
+        deleteDisclosure.onClose();
+    }} message={"Are you sure you want to delete this device, this cannot be undone"} type={"warning"} closeButtonText={"Keep"} disclosure={deleteDisclosure}/>);
+
+
+    const fetchAndProcessData = async (options: ComputerSearchOptions, signal: AbortSignal, cursor: string | number | undefined): Promise<AsyncListStateUpdate<Computer, string>> =>
+    {
+        // setIsLoading(true);
+        if (cursor)
+        {
+            setIsLoading(false);
+        }
+
+        const json = await GetComputers(options, signal);
+        if (json == null)
+            return {
+                items: [],
+                cursor: "0"
+            };
+
+        setHasMore(json.page < json.last_page);
+
+        // map the type to a string
+        json.data.forEach((item: Computer) =>
+        {
+            item.type = GetComputerType(item.type as number);
+            item.available = item.available === 0;
+        });
+        setIsLoading(false);
+        return {
+            items: json.data,
+            cursor: (json.page + 1).toString()
+        };
+    };
+
+    // update the search query when the search prop changes
+    useEffect(() =>
+    {
+        list.reload();
+    }, [list, search]);
+
+
+    useEffect(() =>
+    {
+        if (loadedComputerPopup && editViewDisclosure.isOpen && loadedComputerPopup.computer)
+        {
+            editViewDisclosure.onOpen();
+        }
+    }, [editViewDisclosure, loadedComputerPopup]);
+
+    useEffect(() =>
+    {
+        if (deletingComputerPopup)
+        {
+            deleteDisclosure.onOpen();
+        }
+    }, [deleteDisclosure, deletingComputerPopup]);
 
 
     return (
@@ -115,7 +135,7 @@ export function ComputersTable({search = ""}) {
                 </div>) : null}
                    classNames={{
                        base: "max-h-[90vh] overflow-auto m-auto w-[95vw] min-h-[64px]",
-                       table: "min-h-[32px]",
+                       table: "min-h-[32px]"
                    }}>
                 <TableHeader>
                     <TableColumn allowsSorting allowsResizing key="asset_number">Id</TableColumn>
@@ -151,7 +171,8 @@ export function ComputersTable({search = ""}) {
     );
 }
 
-function ActionsRow({onView, onEdit, onDelete}: { onView?: () => void, onEdit?: () => void, onDelete?: () => void }) {
+function ActionsRow({onView, onEdit, onDelete}: { onView?: () => void, onEdit?: () => void, onDelete?: () => void })
+{
     return (
         <div className="relative flex items-center gap-2 justify-end">
             <Tooltip content="Details" closeDelay={0}>
