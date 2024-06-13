@@ -5,9 +5,9 @@ header("Access-Control-Allow-Origin: *");
 
 // Import the ITComputers class
 use ITComputersDatabase\ITComputers;
+use Slim\Factory\AppFactory;
 
 // Import the AppFactory class from Slim framework
-use Slim\Factory\AppFactory;
 
 // Load all the classes from the vendors
 require_once $_SERVER["DOCUMENT_ROOT"] . "/vendor/autoload.php";
@@ -82,9 +82,9 @@ $app->patch('/{id}', function ($request, $response, $args) use ($computers) {
 $app->delete("/{id}", function ($request, $response, $args) use ($computers) {
     try {
         $id = $args['id'];
-        $response->getBody()->write(json_encode(@$computers->delete($id)))->withStatus(200);
+        $response->withStatus(200)->getBody()->write(json_encode(["success" => @$computers->delete($id)]));
     } catch (Exception $e) {
-        $response->getBody()->write(json_encode(["error" => $e, "message" => "Unable to delete '$id'"]))->withStatus(500);
+        $response->withStatus(500)->getBody()->write(json_encode(["error" => $e, "message" => "Unable to delete '$id'"]));
     }
     return $response->withHeader("Content-Type", "application/json");
 });

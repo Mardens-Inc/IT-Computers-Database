@@ -205,7 +205,7 @@ class ITComputers
         $id = $id[0];
         $data["specs"] = json_encode($data["specs"]);
         $stmt = $this->conn->prepare("UPDATE `itcomputers` SET `asset_number` = ?, `make` = ?, `model` = ?, `condition` = ?, `location` = ?, `primary_user` = ?, `operating_system` = ?, `type` = ?, `available` = ?, `specs` = ?, `notes` = ? WHERE `id` = ?");
-        $stmt->bind_param("sssiisssissi", $data["asset_number"], $data["make"], $data["model"], $data["condition"], $data["location"], $data["primary_user"], $data["operating_system"], $data["type"], $data["available"], $data["specs"], $data["notes"], $id);
+        $stmt->bind_param("sssisssiissi", $data["asset_number"], $data["make"], $data["model"], $data["condition"], $data["location"], $data["primary_user"], $data["operating_system"], $data["type"], $data["available"], $data["specs"], $data["notes"], $id);
         if ($stmt->execute()) {
             return $this->get($this->hashids->encode($id));
         }
