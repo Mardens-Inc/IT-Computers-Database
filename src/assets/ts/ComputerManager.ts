@@ -1,4 +1,5 @@
-export interface Computer {
+export interface Computer
+{
     id: string,
     asset_number: string,
     make: string,
@@ -9,34 +10,21 @@ export interface Computer {
     operating_system: string,
     type: string | number,
     available: boolean | number,
-    specs: any,
+    specs,
     notes: string,
     creation_date: Date,
     last_update: Date
 }
-
-export interface ComputerSpec {
-    cpu: string | null,
-    ram: string | null,
-    storage: string | null,
-    gpu: string | null,
-    display: string | null,
-    benchmark: string | null,
-    ip_address: string | null,
-    department: string | null,
-    login: string | null,
-    password: string | null,
-    tv_id: string | null,
-}
-
 
 /**
  * Returns the computer type based on the given type code.
  * @param {number} type - The type code representing the computer type.
  * @return {string} - The computer type as a string.
  */
-export function GetComputerType(type: number): string {
-    switch (type) {
+export function GetComputerType(type: number): string
+{
+    switch (type)
+    {
         case 1:
             return "Laptop";
         case 2:
@@ -56,7 +44,8 @@ export function GetComputerType(type: number): string {
     }
 }
 
-export interface ComputerSearchOptions {
+export interface ComputerSearchOptions
+{
     query: string,
     sort: string,
     ascending: boolean,
@@ -69,7 +58,8 @@ export interface ComputerSearchOptions {
  *
  * @interface ComputerResult
  */
-export interface ComputerResult {
+export interface ComputerResult
+{
     /**
      * Represents a collection of computer data.
      */
@@ -97,19 +87,126 @@ export interface ComputerResult {
     last_page: number,
 }
 
-export async function GetComputers(options: ComputerSearchOptions, signal: AbortSignal | null = null): Promise<ComputerResult | null> {
-    try {
-        const response = await fetch(`http://computers.local/api/?query=${options.query}&sort=${options.sort}&limit=${options.limit}&page=${options.page}`, {signal})
+/**
+ * Retrieves a list of computers based on the provided search options.
+ * This method makes an asynchronous HTTP request to the specified API endpoint and returns the result as a Promise.
+ *
+ * @param {ComputerSearchOptions} options - The search options for filtering the computers.
+ * @param {AbortSignal} [signal=null] - The signal used to abort the HTTP request.
+ * @returns {Promise<ComputerResult | null>} - A Promise that resolves with the list of computers or null if an error occurs.
+ * @throws {Error} - If an error occurs during the HTTP request.
+ */
+export async function GetComputers(options: ComputerSearchOptions, signal: AbortSignal | null = null): Promise<ComputerResult | null>
+{
+    try
+    {
+        const response = await fetch(`http://computers.local/api/?query=${options.query}&sort=${options.sort}&limit=${options.limit}&page=${options.page}`, {signal});
         const json = await response.json();
         return json as ComputerResult;
-    } catch (e) {
+    } catch (e)
+    {
         if (!signal?.aborted)
-            console.error(e)
+            console.error(e);
 
     }
     return null;
 }
 
-export async function DeleteComputer(id:string){
+/**
+ * Retrieves information about a computer from the API.
+ *
+ * @param {string} id - The ID of the computer to retrieve.
+ * @return {Promise<Computer | null>} - A promise that resolves to the computer object if found, or null if not found.
+ */
+export async function GetComputer(id: string): Promise<Computer | null>
+{
+    try
+    {
+        const response = await fetch(`http://computers.local/api/${id}`);
+        return await response.json();
+    } catch (e)
+    {
+        console.error(e);
+    }
+    return null;
+}
 
+/**
+ * Deletes a computer by its ID.
+ *
+ * @param {string} id - The ID of the computer to be deleted.
+ *
+ * @return {Promise<boolean>} A promise that resolves to true if the computer was successfully deleted,
+ *                           or false if an error occurred or the response was not OK.
+ */
+export async function DeleteComputer(id: string): Promise<boolean>
+{
+    try
+    {
+        const response = await fetch(`http://computers.local/api/${id}`, {method: "DELETE"});
+        return response.ok;
+    } catch (e)
+    {
+        console.error(e);
+    }
+    return false;
+}
+
+/**
+ * Updates the computer information with the provided data.
+ *
+ * @param {Computer} computer - The computer object to update.
+ * @return {Promise<boolean>} - A promise that resolves to true if the computer was successfully updated,
+ *                              or false if an error occurred or the response was not OK.
+ */
+export async function UpdateComputer(computer: Computer): Promise<boolean>
+{
+    if (computer.id === undefined || computer.id === null)
+    {
+        console.error("Computer ID is required to update a computer.");
+        return false;
+    }
+    try
+    {
+        const response = await fetch(`http://computers.local/api/${computer.id}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(computer)
+        });
+        return response.ok;
+    } catch (e)
+    {
+        console.error(e);
+    }
+    return false;
+}
+
+/**
+ * Adds a computer to the API.
+ *
+ * @param {Computer} computer - The computer object to be added.
+ *
+ * @return {Promise<Computer|null>} - A promise that resolves with the added computer object, or null if an error occurs.
+ *
+ * @throws {Error} - If there is an error while adding the computer.
+ */
+export async function AddComputer(computer: Computer): Promise<Computer | null>
+{
+    try
+    {
+        const response = await fetch(`http://computers.local/api/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(computer)
+        });
+        return await response.json();
+    } catch (e)
+    {
+        console.error(e);
+    }
+    return null;
 }
