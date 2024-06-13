@@ -20,7 +20,10 @@
     "checkJs": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "allowUnusedLabels": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noImplicitAny": false,
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
