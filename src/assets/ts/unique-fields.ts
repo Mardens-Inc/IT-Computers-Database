@@ -1,6 +1,7 @@
 import $ from "jquery";
 
-interface UniqueFields {
+interface UniqueFields
+{
     make: string[];
     model: string[];
     location: string[];
@@ -13,10 +14,11 @@ export const uniqueFields: UniqueFields = {
     "model": JSON.parse(window.localStorage.getItem("model") ?? "[]") || [],
     "location": JSON.parse(window.localStorage.getItem("location") ?? "[]") || [],
     "primary_user": JSON.parse(window.localStorage.getItem("primary_user") ?? "[]") || [],
-    "operating_system": JSON.parse(window.localStorage.getItem("operating_system") ?? "[]") || [],
-}
+    "operating_system": JSON.parse(window.localStorage.getItem("operating_system") ?? "[]") || []
+};
 
-$(document).ready(async () => {
+$(document).ready(async () =>
+{
     const requests = [
         $.get("http://computers.local/api/unique/make"),
         $.get("http://computers.local/api/unique/model"),
