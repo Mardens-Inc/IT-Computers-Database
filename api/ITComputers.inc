@@ -31,7 +31,8 @@ class ITComputers
     public function __construct()
     {
         $conn = mysqli_connect("localhost", "drew", "9bc9f6b264724051", "general");
-        if (!$conn || $conn->connect_error) {
+        if (!$conn || $conn->connect_error)
+        {
             die(json_encode(["error" => "Failed to connect to the database " . $conn->connect_error]));
         }
         $this->conn = $conn;
@@ -47,7 +48,8 @@ class ITComputers
     {
         $result = $this->conn->query("SELECT * FROM `itcomputers`");
         $rows = [];
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc())
+        {
             $row["id"] = $this->hashids->encode($row["id"]);
             $row["specs"] = json_decode($row["specs"], true);
             $rows[] = $row;
@@ -69,14 +71,16 @@ class ITComputers
         $ascending = $ascending ? "ASC" : "DESC";
         $offset = max($limit * $page, 0);
         $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` ORDER BY `$sort` $ascending LIMIT ? OFFSET ?");
-        if (!$stmt) {
+        if (!$stmt)
+        {
             return ["error" => $this->conn->error, "code" => $this->conn->errno, "message" => "Failed to prepare statement", "stmt" => $stmt];
         }
         $stmt->bind_param("ii", $limit, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = [];
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc())
+        {
             $row["id"] = $this->hashids->encode($row["id"]);
             $row["specs"] = json_decode($row["specs"], true);
             $rows[] = $row;
@@ -101,17 +105,54 @@ class ITComputers
      * @param bool $ascending True if sorting in ascending order, false for descending order.
      * @return array The list of IT computers matching the search criteria.
      */
-    public function search(string $query, int $limit, int $page, string $sort, bool $ascending): array
+    public function search(string $query, int $limit, int $page, string $sort, bool $ascending, $type, $condition, $operating_system, $make, $model, $location, $primary_user, $available,): array
     {
         $query = "%" . $query . "%";
         $ascending = $ascending ? "ASC" : "DESC";
         $offset = max($limit * $page, 0);
-        $stmt = $this->conn->prepare("SELECT * FROM `itcomputers` WHERE CONCAT(asset_number, make, operating_system, location, primary_user) LIKE ? ORDER BY `$sort` $ascending LIMIT ? OFFSET ?");
+
+        $sql = "SELECT * FROM `itcomputers` WHERE CONCAT(asset_number, make, operating_system, location, primary_user) LIKE ? ";
+        if ($type)
+        {
+            $sql .= "AND `type` = $type ";
+        }
+        if ($condition)
+        {
+            $sql .= "AND `condition` = $condition ";
+        }
+        if ($operating_system)
+        {
+            $sql .= "AND `operating_system` = '$operating_system' ";
+        }
+        if ($make)
+        {
+            $sql .= "AND `make` = '$make' ";
+        }
+        if ($model)
+        {
+            $sql .= "AND `model` = '$model' ";
+        }
+        if ($location)
+        {
+            $sql .= "AND `location` = '$location' ";
+        }
+        if ($primary_user)
+        {
+            $sql .= "AND `primary_user` = '$primary_user' ";
+        }
+        if ($available)
+        {
+            $sql .= "AND `available` = $available ";
+        }
+        $sql .= "ORDER BY `$sort` $ascending LIMIT ? OFFSET ?";
+
+        $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("sii", $query, $limit, $offset);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = [];
-        while ($row = $result->fetch_assoc()) {
+        while ($row = $result->fetch_assoc())
+        {
             $row["id"] = $this->hashids->encode($row["id"]);
             $row["specs"] = json_decode($row["specs"], true);
             $rows[] = $row;
@@ -130,7 +171,8 @@ class ITComputers
     public function get(string $id): array
     {
         $id = $this->hashids->decode($id);
-        if (empty($id)) {
+        if (empty($id))
+        {
             return [];
         }
         $id = $id[0];
@@ -139,7 +181,8 @@ class ITComputers
         $result->execute();
         $result = $result->get_result();
         $result = $result->fetch_assoc();
-        if ($result) {
+        if ($result)
+        {
             $result["id"] = $this->hashids->encode($result["id"]);
             $result["specs"] = json_decode($result["specs"], true);
             return $result;
@@ -157,15 +200,18 @@ class ITComputers
      */
     public function add(array $data): array|bool|string
     {
-        try {
+        try
+        {
             $data["specs"] = json_encode($data["specs"]);
             $stmt = $this->conn->prepare("INSERT INTO `itcomputers` (`asset_number`, `make`, `model`, `condition`, `location`, `primary_user`, `operating_system`, `type`, `available`, `specs`, `notes`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             $stmt->bind_param("sssisssiiss", $data["asset_number"], $data["make"], $data["model"], $data["condition"], $data["location"], $data["primary_user"], $data["operating_system"], $data["type"], $data["available"], $data["specs"], $data["notes"]);
-            if ($stmt->execute()) {
+            if ($stmt->execute())
+            {
                 return $this->get($this->hashids->encode($stmt->insert_id));
             }
             return false;
-        } catch (\Exception $e) {
+        } catch (\Exception $e)
+        {
             return $e->getMessage();
         }
     }
@@ -179,9 +225,11 @@ class ITComputers
     public function add_range(array $items): array
     {
         $results = [];
-        foreach ($items as $item) {
+        foreach ($items as $item)
+        {
             $response = $this->add($item);
-            if ($response) {
+            if ($response)
+            {
                 $results[] = $response;
             }
         }
@@ -199,14 +247,16 @@ class ITComputers
     public function update(string $id, array $data): array|bool
     {
         $id = $this->hashids->decode($id);
-        if (empty($id)) {
+        if (empty($id))
+        {
             return false;
         }
         $id = $id[0];
         $data["specs"] = json_encode($data["specs"]);
         $stmt = $this->conn->prepare("UPDATE `itcomputers` SET `asset_number` = ?, `make` = ?, `model` = ?, `condition` = ?, `location` = ?, `primary_user` = ?, `operating_system` = ?, `type` = ?, `available` = ?, `specs` = ?, `notes` = ? WHERE `id` = ?");
         $stmt->bind_param("sssisssiissi", $data["asset_number"], $data["make"], $data["model"], $data["condition"], $data["location"], $data["primary_user"], $data["operating_system"], $data["type"], $data["available"], $data["specs"], $data["notes"], $id);
-        if ($stmt->execute()) {
+        if ($stmt->execute())
+        {
             return $this->get($this->hashids->encode($id));
         }
         return false;
@@ -221,7 +271,8 @@ class ITComputers
     public function delete(string $id): bool
     {
         $id = $this->hashids->decode($id);
-        if (empty($id)) {
+        if (empty($id))
+        {
             return false;
         }
         $id = $id[0];
@@ -232,17 +283,21 @@ class ITComputers
 
     public function get_unique_values(string $column): array
     {
-        try {
+        try
+        {
             $result = $this->conn->query("SELECT DISTINCT `$column` FROM `itcomputers`");
             $rows = [];
-            while ($row = $result->fetch_assoc()) {
+            while ($row = $result->fetch_assoc())
+            {
                 $rows[] = $row[$column];
             }
             // remove empty arrays
-            return array_filter($rows, function ($value) {
+            return array_filter($rows, function ($value)
+            {
                 return !empty($value);
             });
-        } catch (\Exception $e) {
+        } catch (\Exception $e)
+        {
             return ["error" => $e->getMessage()];
         }
     }
