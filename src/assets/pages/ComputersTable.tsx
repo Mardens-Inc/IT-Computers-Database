@@ -1,43 +1,57 @@
-import {Button, getKeyValue, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure} from "@nextui-org/react";
+import {Button, getKeyValue, SortDescriptor, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, Tooltip, useDisclosure} from "@nextui-org/react";
 import React, {useCallback, useEffect, useState} from "react";
 import {AsyncListData, AsyncListStateUpdate, useAsyncList} from "@react-stately/data";
 import {useInfiniteScroll} from "@nextui-org/use-infinite-scroll";
-import {DeleteIcon, EditIcon, EyeIcon} from "../components/Icons.tsx";
+import {CopyIcon, DeleteIcon, EditIcon, EyeIcon} from "../components/Icons.tsx";
 import ComputerPopup, {EditMode} from "../components/ComputerPopup.tsx";
 import {Confirm} from "../components/AlertComponent.tsx";
-import {Computer, ComputerSearchOptions, GetComputers, GetComputerType} from "../ts/ComputerManager.ts";
+import {Computer, ComputerSearchOptions, DeleteComputer, GetComputers} from "../ts/ComputerManager.ts";
+import FilterComputerPopup, {FilterResults} from "../components/FilterComputerPopup.tsx";
 
-export function ComputersTable({search = ""})
+export function ComputersTable()
 {
+    let filter: FilterResults = {};
+    let currentSortDescriptor: SortDescriptor = {column: "last_update", direction: "descending"};
+    const pageSize = 80;
     const list: AsyncListData<Computer> = useAsyncList({
         async load({signal, cursor})
         {
+            console.log(`loading table with cursor position of '${cursor}' and a search query of '${filter.query}'`);
             let page = parseInt(cursor ?? "0");
             page = isNaN(page) ? 0 : page;
-            return fetchAndProcessData({limit: 30, page, query: search, sort: "id", ascending: false}, signal, cursor);
+            const ascending = currentSortDescriptor.direction === "ascending";
+            const column = currentSortDescriptor.column?.toString() ?? "last_update";
+
+            return fetchAndProcessData({limit: pageSize, page, query: filter.query ?? "", sort: column, ascending: ascending, filter: filter}, signal, cursor);
         },
         async sort({sortDescriptor, signal, cursor})
         {
+            console.log(`sorting table column '${sortDescriptor.column}' ${sortDescriptor.direction ? "ascending" : "descending"}`);
+            currentSortDescriptor = sortDescriptor;
             const ascending = sortDescriptor.direction === "ascending";
-            const column = sortDescriptor.column?.toString() ?? "id";
+            const column = sortDescriptor.column?.toString() ?? "last_update";
             let page = parseInt(cursor ?? "0");
             page = isNaN(page) ? 0 : page;
 
-            return fetchAndProcessData({limit: 10, page, query: search, sort: column, ascending: ascending}, signal, cursor);
+            return fetchAndProcessData({limit: pageSize, page, query: filter.query ?? "", sort: column, ascending: ascending, filter: filter}, signal, cursor);
         }
     });
     const [isLoading, setIsLoading] = useState(true);
     const [hasMore, setHasMore] = useState(false);
     const [loaderRef, scrollerRef] = useInfiniteScroll({hasMore, onLoadMore: list.loadMore});
-    const [loadedComputerPopup, setLoadedComputerPopup] = useState<{ computer: Computer | null, mode: EditMode }>({computer: null, mode: EditMode.Add});
+    const [loadedComputerPopup, setLoadedComputerPopup] = useState<{ computer: Computer, mode: EditMode }>({computer: {} as Computer, mode: EditMode.Add});
     const [deletingComputerPopup, setIsDeletingPopup] = useState<Computer | null>(null);
     const editViewDisclosure = useDisclosure();
     const deleteDisclosure = useDisclosure();
-    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={editViewDisclosure}/>);
+    const modal = (<ComputerPopup computer={loadedComputerPopup.computer} mode={loadedComputerPopup.mode} disclosure={editViewDisclosure} onAddOrUpdate={() =>
+    {
+        list.reload();
+        editViewDisclosure.onClose();
+    }}/>);
 
 
     // Create a callback for opening the modal with a computer object
-    const handleModalOpen = useCallback((computer: Computer | null, mode: EditMode) =>
+    const handleModalOpen = useCallback((computer: Computer, mode: EditMode) =>
     {
         // Set the selected computer
         setLoadedComputerPopup({
@@ -49,7 +63,8 @@ export function ComputersTable({search = ""})
         editViewDisclosure.onOpen();
     }, [editViewDisclosure]);
 
-    const handleDeleteComponentPopup = useCallback((computer: Computer | null) =>
+
+    const handleDeleteComponentPopup = useCallback((computer: Computer) =>
     {
         // Set the selected computer
         setIsDeletingPopup(computer);
@@ -58,26 +73,24 @@ export function ComputersTable({search = ""})
     }, [deleteDisclosure]);
 
 
-    const confirmDeleteModal = (<Confirm confirmButtonText={"DELETE!"} onClose={async (value) =>
+    const confirmDeleteModal = (<Confirm confirmButtonText={"DELETE!"} onClose={(value) =>
     {
         if (value)
         {
             console.log(`delete ${deletingComputerPopup?.id}`);
-            // await DeleteComputer(deletingComputerPopup?.id as string);
-            list.reload();
+            DeleteComputer(deletingComputerPopup?.id as string).then(() =>
+            {
+                list.reload();
+                setIsDeletingPopup(null);
+                deleteDisclosure.onClose();
+            });
         }
-        setIsDeletingPopup(null);
-        deleteDisclosure.onClose();
     }} message={"Are you sure you want to delete this device, this cannot be undone"} type={"warning"} closeButtonText={"Keep"} disclosure={deleteDisclosure}/>);
 
 
-    const fetchAndProcessData = async (options: ComputerSearchOptions, signal: AbortSignal, cursor: string | number | undefined): Promise<AsyncListStateUpdate<Computer, string>> =>
+    const fetchAndProcessData = async (options: ComputerSearchOptions, signal: AbortSignal | undefined, cursor: string | number | undefined): Promise<AsyncListStateUpdate<Computer, string>> =>
     {
-        // setIsLoading(true);
-        if (cursor)
-        {
-            setIsLoading(false);
-        }
+        if (cursor) setIsLoading(false);
 
         const json = await GetComputers(options, signal);
         if (json == null)
@@ -86,27 +99,15 @@ export function ComputersTable({search = ""})
                 cursor: "0"
             };
 
-        setHasMore(json.page < json.last_page);
+        setHasMore(false);
+        // setHasMore(json.page < json.last_page);
 
-        // map the type to a string
-        json.data.forEach((item: Computer) =>
-        {
-            item.type = GetComputerType(item.type as number);
-            item.available = item.available === 0;
-        });
         setIsLoading(false);
         return {
             items: json.data,
             cursor: (json.page + 1).toString()
         };
     };
-
-    // update the search query when the search prop changes
-    useEffect(() =>
-    {
-        list.reload();
-    }, [list, search]);
-
 
     useEffect(() =>
     {
@@ -122,19 +123,25 @@ export function ComputersTable({search = ""})
         {
             deleteDisclosure.onOpen();
         }
-    }, [deleteDisclosure, deletingComputerPopup]);
+    }, [deletingComputerPopup]);
 
 
     return (
-        <>
+        <div className={"flex flex-row mt-4"}>
             {confirmDeleteModal}
             {modal}
-            <Table isStriped isHeaderSticky removeWrapper baseRef={scrollerRef} onSortChange={list.sort} sortDescriptor={list.sortDescriptor} bottomContent={hasMore ? (
+            <FilterComputerPopup filter={filter} onApplyFilter={f =>
+            {
+                filter = f;
+                console.log(`Filter`, filter);
+                list.reload();
+            }}/>
+            <Table className={"w-full"} isStriped isHeaderSticky removeWrapper baseRef={scrollerRef} onSortChange={list.sort} sortDescriptor={list.sortDescriptor} bottomContent={hasMore ? (
                 <div className="flex w-full justify-center">
                     <Spinner ref={loaderRef} color="primary" size={"lg"}/>
                 </div>) : null}
                    classNames={{
-                       base: "max-h-[90vh] overflow-auto m-auto w-[95vw] min-h-[64px]",
+                       base: "max-h-[98vh] overflow-auto mr-5 min-h-[64px]",
                        table: "min-h-[32px]"
                    }}>
                 <TableHeader>
@@ -144,9 +151,10 @@ export function ComputersTable({search = ""})
                     <TableColumn allowsSorting allowsResizing key="type">Type</TableColumn>
                     <TableColumn allowsSorting allowsResizing key="location">Location</TableColumn>
                     <TableColumn allowsSorting allowsResizing key="primary_user">User</TableColumn>
+                    <TableColumn allowsSorting allowsResizing key="last_update">Last Updated</TableColumn>
                     <TableColumn allowsResizing key="actions" className="flex align-middle justify-end">
                         <Tooltip content={"Add new device"}>
-                            <Button color="primary" className="aspect-square w-[2rem] min-w-[2rem] min-h-[2rem] h-[2rem] rounded-md m-0.5" onClick={() => handleModalOpen(null, EditMode.Add)}>+</Button>
+                            <Button color="primary" className="h-[1.75rem] rounded-md m-0.5 my-auto text-lg" onClick={() => handleModalOpen({} as Computer, EditMode.Add)}>+</Button>
                         </Tooltip>
                     </TableColumn>
                 </TableHeader>
@@ -162,16 +170,17 @@ export function ComputersTable({search = ""})
                                 onView={() => handleModalOpen(item, EditMode.View)}
                                 onEdit={() => handleModalOpen(item, EditMode.Edit)}
                                 onDelete={() => handleDeleteComponentPopup(item)}
-                            /></TableCell>) : (<TableCell>{getKeyValue(item, columnKey)}</TableCell>)}
+                                onDuplicate={() => handleModalOpen(item, EditMode.Duplicate)}
+                            /></TableCell>) : (<TableCell>{getKeyValue(item, columnKey).toString()}</TableCell>)}
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
-        </>
+        </div>
     );
 }
 
-function ActionsRow({onView, onEdit, onDelete}: { onView?: () => void, onEdit?: () => void, onDelete?: () => void })
+function ActionsRow({onView, onEdit, onDelete, onDuplicate}: { onView?: () => void, onEdit?: () => void, onDelete?: () => void, onDuplicate?: () => void })
 {
     return (
         <div className="relative flex items-center gap-2 justify-end">
@@ -183,6 +192,11 @@ function ActionsRow({onView, onEdit, onDelete}: { onView?: () => void, onEdit?: 
             <Tooltip content="Edit" closeDelay={0}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={onEdit} aria-label={"Click to modify the device's details"}>
                 <EditIcon/>
+              </span>
+            </Tooltip>
+            <Tooltip content="Duplicate" closeDelay={0}>
+              <span className="text-lg text-default-400 cursor-pointer active:opacity-50" onClick={onDuplicate} aria-label={"Click to duplicate the device's details"}>
+                <CopyIcon/>
               </span>
             </Tooltip>
             <Tooltip color="danger" content="Delete" closeDelay={0}>
