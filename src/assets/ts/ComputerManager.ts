@@ -170,6 +170,24 @@ export async function GetComputers(options: ComputerSearchOptions, signal: Abort
         params.set("limit", options.limit.toString());
         params.set("page", options.page.toString());
         params.set("ascending", options.ascending.toString());
+        if (options.filter.type)
+            params.set("type", options.filter.type.toString());
+        if (options.filter.condition)
+            params.set("condition", options.filter.condition.toString());
+        if (options.filter.location)
+            params.set("location", options.filter.location.toString());
+        if (options.filter.operating_system)
+            params.set("operating_system", options.filter.operating_system.toString());
+        if (options.filter.make)
+            params.set("make", options.filter.make.toString());
+        if (options.filter.model)
+            params.set("model", options.filter.model.toString());
+        if (options.filter.primary_user)
+            params.set("primary_user", options.filter.primary_user.toString());
+        if (options.filter.available)
+            params.set("available", options.filter.available.toString());
+        console.log(`http://computers.local/api/?${params}`);
+
         const response = await fetch(`http://computers.local/api/?${params}`, {signal});
         const json: ComputerResult = await response.json();
         json.data = json.data.map((item: Computer) =>
