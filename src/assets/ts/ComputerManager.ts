@@ -1,10 +1,12 @@
+import {FilterResults} from "../components/FilterComputerPopup.tsx";
+
 export interface Computer
 {
     id: string,
     asset_number: string,
     make: string,
     model: string,
-    condition: number,
+    condition: string | number,
     location: string,
     primary_user: string,
     operating_system: string,
@@ -44,6 +46,67 @@ export function GetComputerType(type: number): string
     }
 }
 
+export function GetComputerCondition(condition: number): string
+{
+    switch (condition)
+    {
+        case 1:
+            return "Broken";
+        case 2:
+            return "Good/Used";
+        case 3:
+            return "Refurbished / Open Box";
+        case 4:
+            return "Display";
+        case 5:
+            return "New";
+        default:
+            return "Unknown";
+    }
+}
+
+export function GetComputerConditionCode(condition: string): number
+{
+    switch (condition)
+    {
+        case "Broken":
+            return 1;
+        case "Good/Used":
+            return 2;
+        case "Refurbished / Open Box":
+            return 3;
+        case "Display":
+            return 4;
+        case "New":
+            return 5;
+        default:
+            return 0;
+    }
+}
+
+export function GetComputerTypeCode(type: string): number
+{
+    switch (type)
+    {
+        case "Laptop":
+            return 1;
+        case "Desktop":
+            return 2;
+        case "Printer":
+            return 3;
+        case "Copier":
+            return 4;
+        case "Phone":
+            return 5;
+        case "Kiosk":
+            return 6;
+        case "Tablet":
+            return 7;
+        default:
+            return 0;
+    }
+}
+
 export interface ComputerSearchOptions
 {
     query: string,
@@ -51,6 +114,7 @@ export interface ComputerSearchOptions
     ascending: boolean,
     limit: number,
     page: number,
+    filter: FilterResults
 }
 
 /**
@@ -100,9 +164,22 @@ export async function GetComputers(options: ComputerSearchOptions, signal: Abort
 {
     try
     {
-        const response = await fetch(`http://computers.local/api/?query=${options.query}&sort=${options.sort}&limit=${options.limit}&page=${options.page}`, {signal});
-        const json = await response.json();
-        return json as ComputerResult;
+        const params: URLSearchParams = new URLSearchParams();
+        params.set("query", options.query);
+        params.set("sort", options.sort);
+        params.set("limit", options.limit.toString());
+        params.set("page", options.page.toString());
+        params.set("ascending", options.ascending.toString());
+        const response = await fetch(`http://computers.local/api/?${params}`, {signal});
+        const json: ComputerResult = await response.json();
+        json.data = json.data.map((item: Computer) =>
+        {
+            item.type = GetComputerType(item.type as number);
+            item.available = item.available === 1;
+            item.condition = GetComputerCondition(item.condition as number);
+            return item;
+        });
+        return json;
     } catch (e)
     {
         if (!signal?.aborted)
@@ -168,8 +245,9 @@ export async function UpdateComputer(computer: Computer): Promise<boolean>
     }
     try
     {
+        console.log(JSON.stringify(computer));
         const response = await fetch(`http://computers.local/api/${computer.id}`, {
-            method: "PATCH",
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },
