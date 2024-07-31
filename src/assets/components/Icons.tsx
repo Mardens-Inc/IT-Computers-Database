@@ -146,3 +146,36 @@ export const SearchIcon = ({size = 24, strokeWidth = 1.5, width = null, height =
 );
 
 
+export const CopyIcon = ({size = 16, width = null, height = null, ...props}) => (
+    <svg xmlns="http://www.w3.org/2000/svg"
+         aria-hidden="true"
+         focusable="false"
+         height={height || size}
+         role="presentation"
+         viewBox="0 0 448 512"
+         width={width || size}
+         {...props}
+    >
+        <path d="M384 336H192c-8.8 0-16-7.2-16-16V64c0-8.8 7.2-16 16-16l140.1 0L400 115.9V320c0 8.8-7.2 16-16 16zM192 384H384c35.3 0 64-28.7 64-64V115.9c0-12.7-5.1-24.9-14.1-33.9L366.1 14.1c-9-9-21.2-14.1-33.9-14.1H192c-35.3 0-64 28.7-64 64V320c0 35.3 28.7 64 64 64zM64 128c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H256c35.3 0 64-28.7 64-64V416H272v32c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192c0-8.8 7.2-16 16-16H96V128H64z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="currentColor"/>
+    </svg>
+);
+
+
+export const FilterIcon = ({size = 16, width = null, height = null, ...props}) => (
+    <svg xmlns="http://www.w3.org/2000/svg"
+         viewBox="0 0 512 512"
+         height={height || size}
+         width={width || size}
+         {...props}
+    >
+        <path
+            d="M3.9 54.9C10.5 40.9 24.5 32 40 32H472c15.5 0 29.5 8.9 36.1 22.9s4.6 30.5-5.2 42.5L320 320.9V448c0 12.1-6.8 23.2-17.7 28.6s-23.8 4.3-33.5-3l-64-48c-8.1-6-12.8-15.5-12.8-25.6V320.9L9 97.3C-.7 85.4-2.8 68.8 3.9 54.9z"
+            fill="currentColor"
+        />
+    </svg>
+);
+
+
