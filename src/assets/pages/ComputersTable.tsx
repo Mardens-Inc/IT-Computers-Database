@@ -10,7 +10,8 @@ import FilterComputerPopup, {FilterResults} from "../components/FilterComputerPo
 
 export function ComputersTable()
 {
-    let filter: FilterResults = {};
+    // let filter: FilterResults = {};
+    const [filter, setFilter] = useState<FilterResults>({});
     let currentSortDescriptor: SortDescriptor = {column: "last_update", direction: "descending"};
     const pageSize = 80;
     const list: AsyncListData<Computer> = useAsyncList({
@@ -132,7 +133,7 @@ export function ComputersTable()
             {modal}
             <FilterComputerPopup filter={filter} onApplyFilter={f =>
             {
-                filter = f;
+                setFilter(f);
                 console.log(`Filter`, filter);
                 list.reload();
             }}/>
