@@ -35,7 +35,7 @@ $app->get('/', function ($request, $response, $args) use ($computers) {
         if (isset($params["limit"])) {
             $page = $params["page"] ?? 0;
             $sort = $params["sort"] ?? "id";
-            $ascending = $params["ascending"] ?? true;
+            $ascending = $params["ascending"] == "true";
             $query = $params["query"] ?? "";
             $response->getBody()->write(json_encode(@$computers->search($query, $params["limit"], $page, $sort, $ascending)));
         } else
@@ -72,7 +72,7 @@ $app->post('/', function ($request, $response, $args) use ($computers) {
 });
 
 // Define PUT route to update computer
-$app->patch('/{id}', function ($request, $response, $args) use ($computers) {
+$app->put('/{id}', function ($request, $response, $args) use ($computers) {
     $data = $request->getBody()->getContents();
     $response->getBody()->write(json_encode($computers->update($args["id"], json_decode($data, true))));
     return $response->withHeader('Content-Type', 'application/json');
