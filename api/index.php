@@ -37,7 +37,15 @@ $app->get('/', function ($request, $response, $args) use ($computers) {
             $sort = $params["sort"] ?? "id";
             $ascending = $params["ascending"] == "true";
             $query = $params["query"] ?? "";
-            $response->getBody()->write(json_encode(@$computers->search($query, $params["limit"], $page, $sort, $ascending)));
+            $type = @$params["type"] ?? "";
+            $condition = @$params["condition"] ?? "";
+            $operating_system = @$params["operating_system"] ?? "";
+            $make = @$params["make"] ?? "";
+            $model = @$params["model"] ?? "";
+            $location = @$params["location"] ?? "";
+            $primary_user = @$params["primary_user"] ?? "";
+            $available = @$params["available"] ?? "";
+            $response->getBody()->write(json_encode(@$computers->search($query, $params["limit"], $page, $sort, $ascending, $type, $condition, $operating_system, $make, $model, $location, $primary_user, $available)));
         } else
             $response->getBody()->write(json_encode($computers->all()));
         return $response->withHeader('Content-Type', 'application/json');
