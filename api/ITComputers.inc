@@ -285,7 +285,7 @@ class ITComputers
     {
         try
         {
-            $result = $this->conn->query("SELECT DISTINCT `$column` FROM `itcomputers`");
+            $result = $this->conn->query("SELECT DISTINCT `$column` FROM `itcomputers` order by `$column`");
             $rows = [];
             while ($row = $result->fetch_assoc())
             {
