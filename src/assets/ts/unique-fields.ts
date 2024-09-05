@@ -19,6 +19,15 @@ export const uniqueFields: UniqueFields = {
 
 $(document).ready(async () =>
 {
+    const currentStats = {
+        make: [...uniqueFields.make],
+        model: [...uniqueFields.model],
+        location: [...uniqueFields.location],
+        primary_user: [...uniqueFields.primary_user],
+        operating_system: [...uniqueFields.operating_system],
+    }
+
+
     const requests = [
         $.get("http://computers.local/api/unique/make"),
         $.get("http://computers.local/api/unique/model"),
@@ -33,4 +42,13 @@ $(document).ready(async () =>
     window.localStorage.setItem("location", JSON.stringify(uniqueFields.location = Object.values(location)));
     window.localStorage.setItem("primary_user", JSON.stringify(uniqueFields.primary_user = Object.values(primary_user)));
     window.localStorage.setItem("operating_system", JSON.stringify(uniqueFields.operating_system = Object.values(operating_system)));
+
+    // check if the stats have changed
+    if (JSON.stringify(currentStats) !== JSON.stringify(uniqueFields))
+    {
+        console.log("Unique fields have changed. Reloading page.");
+        window.location.reload();
+    }
+    console.log("Unique fields loaded.");
+
 });
