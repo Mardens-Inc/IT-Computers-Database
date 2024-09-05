@@ -110,23 +110,6 @@ export function ComputersTable()
         };
     };
 
-    useEffect(() =>
-    {
-        if (loadedComputerPopup && editViewDisclosure.isOpen && loadedComputerPopup.computer)
-        {
-            editViewDisclosure.onOpen();
-        }
-    }, [editViewDisclosure, loadedComputerPopup]);
-
-    useEffect(() =>
-    {
-        if (deletingComputerPopup)
-        {
-            deleteDisclosure.onOpen();
-        }
-    }, [deletingComputerPopup]);
-
-
     return (
         <div className={"flex flex-row mt-4"}>
             {confirmDeleteModal}
