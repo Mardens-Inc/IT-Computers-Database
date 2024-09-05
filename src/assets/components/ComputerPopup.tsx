@@ -46,6 +46,8 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
     if (!newComputer || Object.keys(newComputer).length === 0)
         newComputer = computer;
 
+    // console.log("ComputerPopup", computer, newComputer, mode, disclosure, onAddOrUpdate);
+
     const isMissingRequiredFields = !newComputer.asset_number || !newComputer.type || !newComputer.condition || !newComputer.operating_system || !newComputer.make || !newComputer.location || !newComputer.primary_user;
 
     return (
@@ -70,13 +72,13 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                                     {mode !== EditMode.Add && (
                                         <TableRow>
                                             <TableCell>Created</TableCell>
-                                            <TableCell>{computer?.creation_date.toString()}</TableCell>
+                                            <TableCell>{computer?.creation_date?.toString() ?? ""}</TableCell>
                                         </TableRow>
                                     )}
                                     {mode !== EditMode.Add && (
                                         <TableRow>
                                             <TableCell>Last Updated</TableCell>
-                                            <TableCell>{computer?.last_update.toString()}</TableCell>
+                                            <TableCell>{computer?.last_update?.toString() ?? ""}</TableCell>
                                         </TableRow>
                                     )}
                                     <TableRow>
@@ -84,7 +86,7 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                                         <TableCell>{edit ? (<Input aria-label={"The asset number of the device"} value={newComputer?.asset_number} placeholder={"This field is required..."} isRequired errorMessage={"This field is required"} onValueChange={(e) =>
                                         {
                                             setNewComputer({...newComputer, asset_number: e} as Computer); // This is a workaround to prevent the newComputer object from being null.
-                                        }}/>) : newComputer?.asset_number}</TableCell>
+                                        }}/>) : newComputer?.asset_number ?? -1}</TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Type <span className={"text-danger"}>*</span></TableCell>
@@ -115,7 +117,7 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                                                 <SelectItem key="6">Kiosk</SelectItem>
                                                 <SelectItem key="7">Tablet</SelectItem>
                                                 <SelectItem key="0">Unknown</SelectItem>
-                                            </Select>) : newComputer?.type}
+                                            </Select>) : newComputer?.type ?? "Unknown"}
 
                                         </TableCell>
                                     </TableRow>
@@ -161,57 +163,57 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                                                                    }}
                                             >
                                                 {uniqueFields.operating_system.map((os) => <SelectItem key={os} aria-label={`Operating System: ${os}`}>{os}</SelectItem>)}
-                                            </Autocomplete>) : newComputer?.operating_system.toString()}
+                                            </Autocomplete>) : newComputer?.operating_system?.toString() ?? ""}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Make <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"Computer make or brand"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.make.toString()}
+                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"Computer make or brand"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.make?.toString() ?? ""}
                                                                    onInputChange={(key) =>
                                                                    {
                                                                        setNewComputer({...newComputer, make: key} as Computer);
                                                                    }}
                                             >
                                                 {uniqueFields.make.map((make) => <SelectItem key={make} aria-label={`Make: ${make}`}>{make}</SelectItem>)}
-                                            </Autocomplete>) : newComputer?.make.toString()}
+                                            </Autocomplete>) : newComputer?.make?.toString() ?? ""}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Model</TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"Computer model or serial number"} placeholder={mode === EditMode.Add ? "This field is optional..." : newComputer?.model.toString()}
+                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"Computer model or serial number"} placeholder={mode === EditMode.Add ? "This field is optional..." : newComputer?.model?.toString() ?? ""}
                                                                    onInputChange={(key) =>
                                                                    {
                                                                        setNewComputer({...newComputer, model: key} as Computer);
                                                                    }}
                                             >
                                                 {uniqueFields.model.map((model) => <SelectItem key={model} aria-label={`Model: ${model}`}>{model}</SelectItem>)}
-                                            </Autocomplete>) : computer?.model.toString()}
+                                            </Autocomplete>) : computer?.model?.toString() ?? ""}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Location <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"The location of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.location.toString()}
+                                            {edit ? (<Autocomplete allowsCustomValue onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"The location of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.location?.toString() ?? ""}
                                                                    onInputChange={(key) =>
                                                                    {
                                                                        setNewComputer({...newComputer, location: key} as Computer);
                                                                    }}
                                             >
                                                 {uniqueFields.location.map((location) => <SelectItem key={location} aria-label={`Model: ${location}`}>{location}</SelectItem>)}
-                                            </Autocomplete>) : computer?.location.toString()}
+                                            </Autocomplete>) : computer?.location?.toString() ?? ""}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>Primary User <span className={"text-danger"}>*</span></TableCell>
                                         <TableCell>
-                                            {edit ? (<Autocomplete onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"The primary user of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.primary_user.toString()} allowsCustomValue onInputChange={(key) =>
+                                            {edit ? (<Autocomplete onClick={(e) => (e.target as HTMLInputElement).focus()} aria-label={"The primary user of the device"} placeholder={mode === EditMode.Add ? "This field is required..." : newComputer?.primary_user?.toString() ?? ""} allowsCustomValue onInputChange={(key) =>
                                             {
                                                 setNewComputer({...newComputer, primary_user: key} as Computer);
                                             }}>
                                                 {uniqueFields.primary_user.map((user) => <SelectItem key={user} aria-label={`Model: ${user}`}>{user}</SelectItem>)}
-                                            </Autocomplete>) : computer?.primary_user.toString()}
+                                            </Autocomplete>) : computer?.primary_user?.toString() ?? ""}
                                         </TableCell>
                                     </TableRow>
                                     {newComputer?.specs && Object.keys(newComputer.specs).map((key) =>
@@ -256,10 +258,10 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                                     <TableRow>
                                         <TableCell>Notes</TableCell>
                                         <TableCell>
-                                            {edit ? (<Textarea aria-label={"Any additional notes about the device"} placeholder={"Any notes that might be important"} value={newComputer?.notes} onValueChange={value =>
+                                            {edit ? (<Textarea aria-label={"Any additional notes about the device"} placeholder={"Any notes that might be important"} value={newComputer?.notes??""} onValueChange={value =>
                                             {
                                                 setNewComputer({...newComputer, notes: value} as Computer);
-                                            }}/>) : computer?.notes}
+                                            }}/>) : computer?.notes??""}
                                         </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -324,7 +326,11 @@ export default function ComputerPopup({computer, mode, disclosure, onAddOrUpdate
                         ) : (
 
                             <ModalFooter>
-                                <Button color="primary" onPress={onClose}>
+                                <Button color="primary" onPress={() =>
+                                {
+                                    setNewComputer({} as Computer);
+                                    onClose();
+                                }}>
                                     Close
                                 </Button>
                             </ModalFooter>
