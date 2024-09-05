@@ -24,6 +24,7 @@ for (const record of records) {
     let condition = record.getField("Condition").toLowerCase();
     let deviceType = record.getField("Device Type").toLowerCase();
     let available = 0;
+    let os = record.getField("OS").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim();
 
     if (condition.includes("broken"))
         condition = 1;
@@ -38,12 +39,15 @@ for (const record of records) {
     else
         condition = 0;
 
+    if (deviceType.includes("chrome"))
+        os = "chrome";
+
     if (deviceType.includes("available"))
         available = 1;
 
-    if (deviceType.includes("laptop") || deviceType.includes("chrome"))
+    if (deviceType.includes("laptop") || deviceType.includes("chrome")) {
         deviceType = 1;
-    else if (deviceType.includes("desk") || deviceType.includes("pc"))
+    } else if (deviceType.includes("desk") || deviceType.includes("pc"))
         deviceType = 2;
     else if (deviceType.includes("printer"))
         deviceType = 3;
@@ -71,12 +75,12 @@ for (const record of records) {
         }, {});
 
     const item = {
-        "asset_number": record.getField("Asset number").replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
-        "make": record.getField("Make").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
-        "model": record.getField("Model No.").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
-        "location": record.getField("Location").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
-        "primary_user": record.getField("Primary User").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
-        "operating_system": record.getField("OS").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g,"").trim(),
+        "asset_number": record.getField("Asset number").replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim(),
+        "make": record.getField("Make").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim(),
+        "model": record.getField("Model No.").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim(),
+        "location": record.getField("Location").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim(),
+        "primary_user": record.getField("Primary User").toLowerCase().replace(/[^0-9A-Za-z\s]/g, "").replace(/[\r\n]/g, "").trim(),
+        "operating_system": os,
         "condition": condition,
         "type": deviceType,
         "available": available,
